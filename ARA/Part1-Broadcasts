@@ -24,7 +24,7 @@ Process P :
   BestEffort_broadcast(m)
     send m to all including me
 
-  upon recv(m) :
+upon recv(m) :
     BestEffort_deliver(m)
 ```
 
@@ -40,9 +40,33 @@ Intuitively, the semantics of a reliable broadcast algorithm ensure that the cor
 
 #### Idea
 __If one correct process delivers the broadcasted message _m_, every correct process delivers _m_.__
+
+#### Algo
+```
+Process P: 
+  Local Variable: 
+    rec= new();
+
+    real_bcast(m) 
+      timestamp m with sender_id and sequence #
+      send m to every process
+    
+    upon recv(m) do
+      if m not in rec 
+        rec.add(m)
+      if sender(m) != P 
+        send m to every process but P
+      real_deliver(m)
+```
+
 ![bcast-reliable](./images/bcast-reliable.png)
 
-
+#### Summary
+- [+] No need for fault detection 
+- [+] Algo works in any temporal model
+- [-] Bad perf, `n(n-1)` messages per bcast
+- [-] Makes it useless irl
+- [x] No guarantees of order 
 
 
 ### Uniform Reliable broadcast (_fiable uniforme_)
