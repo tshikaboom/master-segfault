@@ -1,0 +1,57 @@
+# Broadcasts
+
+## Primitives
+* `broadcast(m)` : p broadcasts `m` to the group
+* `deliver(m)` : delivers m to p
+
+## Issues
+Ensure two properties:
+- delivery guarantee
+- ordering guarantee
+
+## Delivery guarantees
+### Best-effort
+With best-effort broadcast, the burden of ensuring reliability is only on the sender. Therefore, the remaining processes do not have to be concerned with enforcing the reliability of received messages.
+On the other hand no delivery guarantees are offered in case the sender fails. Best-effort broadcast is characterized by the following three properties:
+- _validity_ is a liveness property, where _p1_ and _p2_ are correct, a message _m_, broadcasted by _p1_ eventually gets delivered by _p2_, whereas the;
+- _no duplication_ property, ensuring that messages get delivered at most once, and the;
+- _no creation_ property, where only message broadcasted by a process, are safety properties
+
+They descend  directly from the corresponding properties of perfect point-to-point links. Note that broadcast messages are implicitly addressed to all processes. Remember also that messages are unique, that is, no process ever broadcasts the same message twice and furthermore, no two processes ever broadcast the same message.
+
+```
+Process P :
+  BestEffort_broadcast(m)
+    send m to all including me
+
+  upon recv(m) :
+    BestEffort_deliver(m)
+```
+
+![bcast-best_effort](./images/bcast-best_effort.png)
+### Reliable broadcast (_fiable_)
+Best-effort broadcast ensures the delivery of messages as long as the sender does not fail. If the sender fails, some processes might deliver the message and others might not deliver it. In other words, they do not _agree_ on delivery of the message. Ensuring agreement even when the sender fails is an important property for many practical applications that rely on broadcast. The abstraction of _(regular) reliable broadcast_ provides exactly this stronger notion of reliability.
+
+#### Specification
+Intuitively, the semantics of a reliable broadcast algorithm ensure that the correct processes agree on the set of messages they deliver, even when the sender of the messages crash during the transmission. It should be noted that a sender may crash before being able to transmit the message, in which case no process will deliver it.
+- _validity_ if a correct process broadcasts message _m_ then all correct process delivers _m_
+- _agreement_ if a correct process delivers message _m_ then all the correct members deliver _m_
+- _completeness_ Messages are delivered at most once to every correct process, if it was broadcasted by a process
+
+#### Idea
+__If one correct process delivers the broadcasted message _m_, every correct process delivers _m_.__
+![bcast-reliable](./images/bcast-reliable.png)
+
+
+
+
+### Uniform Reliable broadcast (_fiable uniforme_)
+
+
+
+## Order guarantees
+### FIFO
+
+### Causal
+
+### Total
