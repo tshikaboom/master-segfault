@@ -59,8 +59,6 @@ Process P:
       real_deliver(m)
 ```
 
-![bcast-reliable](./images/bcast-reliable.png)
-
 #### Summary
 - [+] No need for fault detection 
 - [+] Algo works in any temporal model
@@ -68,14 +66,25 @@ Process P:
 - [-] Makes it useless irl
 - [x] No guarantees of order 
 
+![bcast-reliable](./images/bcast-reliable.png)
+
 
 ### Uniform Reliable broadcast (_fiable uniforme_)
 
+With regular reliable broadcast, the semantics just require the _correct_ processes to deliver the same set of messages, regardless of what messages have been delivered by faulty processes. In particular, a process that rb-broadcast a message might rb-deliver it and then crash, before the best-effort broadcast abstraction can even beb-deliver the message to any other process. There are cases where such behavior causes problems because even a process that rb-delivers a message and later crashes may bring the application into a inconsistent state.
+We now introduce a stronger definition of reliable broadcast, called _uniform reliable broadcast_. This definition is stronger in the sense that it guarantees that the set of messages delivered by _faulty_ processes is always a _subset_ of the messages delivered by correct processes. Many other abstractions also have such _uniform_ variants. 
 
+Uniformity ensures compliance of specifications to both correct and faulty processes. 
+
+#### Specs 
+- _validite_ si un processus correct diffuse le message _m_, alors tous les processus corrects delvirent _m_.
+- _accord uniforme_ si un processus (__correct__ ou __fautif__) delivre le message _m_, alors tous les membres corrects delivrent _m_,
+- _integrite uniforme_ Un message _m_ est delivre au plus une fois a tout processus (__correct__ ou __fautif__), et seulement s'il a ete diffuse par un processus  
 
 ## Order guarantees
 ### FIFO
-
+The spicification of reliable broadcast does not state anything about the order in which multiple messages are delivered. A FIFO-order is one of the simplest possible orderings and guarantees that messages from the same sender are delivered in the same sequence as they were broadcast by the sender. Note, this does not affect messages from different senders. 
+The FIFO-order (reliable) broadcast abstraction is obtained from the (regular) reliable broadcast abstraction by extending it with the FIFO delivery property. A uniform variation of FIFO-order (reliable) broadcast with causal order can be obtained in the same way. For brevity we usually skip the term reliable refer to a FIFO-order broadcast abstraction.
 ### Causal
 
 ### Total
