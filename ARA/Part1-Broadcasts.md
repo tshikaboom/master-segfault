@@ -82,9 +82,22 @@ Uniformity ensures compliance of specifications to both correct and faulty proce
 - _integrite uniforme_ Un message _m_ est delivre au plus une fois a tout processus (__correct__ ou __fautif__), et seulement s'il a ete diffuse par un processus  
 
 ## Order guarantees
+![bcast-compare](./images/bcast-compare.png)
 ### FIFO
 The spicification of reliable broadcast does not state anything about the order in which multiple messages are delivered. A FIFO-order is one of the simplest possible orderings and guarantees that messages from the same sender are delivered in the same sequence as they were broadcast by the sender. Note, this does not affect messages from different senders. 
 The FIFO-order (reliable) broadcast abstraction is obtained from the (regular) reliable broadcast abstraction by extending it with the FIFO delivery property. A uniform variation of FIFO-order (reliable) broadcast with causal order can be obtained in the same way. For brevity we usually skip the term reliable refer to a FIFO-order broadcast abstraction.
+
 ### Causal
+The _causal order_ property for a broadcast abstraction ensures that messages are delivered such that tehy respect all cause-effect relations. The happenned-before relation expresses all such dependencies. This relation is also called the _causal order_ relation, when applied to messages exchanged among processes and expressed by broadcast and delivery events. In this case, we say that a message `m1` may have _potentially caused_ another message `m2`, denoted as `m1 -> m2`, if any of the followint relations apply: 
+- some process `p` broadcasts `m1` before it broadcasts `m2`
+- some process `p` delivers `m1` and subsequently broadcasts `m2`; or
+- there exists some message `m'` such that `m1 -> m'` and `m' -> m2`
+
+As is evident from the first condition of causal order, the _causal delivery_ property implies the _FIFO order_ property. Hence, a causal-order broadcast primitive provides also FIFO-order reliable broadcast.
+
+Both causal and FIFO orders are only partial orders; there's no properties about the delivery order for concurrent bcasts
 
 ### Total
+The messages are delivered in the same order to all the destinaties. 
+
+# 
