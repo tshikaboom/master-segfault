@@ -129,26 +129,32 @@ John is waiting in his car at a red traffic light with his children. His childre
 ## Test and test and set
 Wait until lock looks free by spinning on local cache. No bus use while lock busy.  
 Problem? When lock is released - invalidation storm.
-![spin-compare](./images/para-spinn-comp.png)
 
-## Backoff 
+## Exponential Backoff
 Easy to implement, same thing as in a CSMA/CA. On spinlock, back off, wait for exponentially inreasing period of time (usually bounded).  
 [+] Easy to implement  
 [+] Better performance than TTAS  
 [-] 'Pifologique' fine-tuning  
 [-] Not portable across architectures/platforms
 
-
+![spin-compare](./images/para-spinn-comp.png)
 ## Anderson Queue Lock
 ### Idea
-Avoids useless invalidations by keeping a queue of threads. Each thread notifies next in line withought bothering the others  
+Avoids useless invalidations by keeping a queue of threads. Each thread notifies next in line withought bothering the others. Fairness is ensured by using FIFO queue mechanism.  
 
 [+] First truly scalable lock  
 [+] Simple, easy to implement 
 [-] Space hog  
 [-] One bit per thread  
 - Unknown number of threads  
-- Small number of actual contenders? 
+- Small number of actual contenders?
+
+### ELI5
+Relay race where the athlete passes on the baton to the next athlete in queue which ensures that the only one athlete acquires the baton.
+
+![anderson](./images/para-anderson.png)
+
+
 ## Hazard pointers - Michael's algorithm
 Michael adds to the previous algorithm a _global array_ `H` of _hazard pointers_: 
 - thread `i` alone is allowed to write to element `H[i]` of the array; 
