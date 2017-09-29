@@ -166,22 +166,35 @@ push (b) {
 }
 
 ```
-## LL/SC - Loal Link / Store Conditional 
+## LL/SC - Load Link / Store Conditional 
 Similar to CAS but very hard to implement
-Supervise @s, if they change, tell user. 
+Supervise addresses, if they change, notify. 
 
 `Load-Link(x)` supervises `x` address  
 `Store-Conditional (x, y)`
 - `x := y` return true, only if `x` was not modified since `Load-Link(x)`
 
-#Invariants
-## Logique de Hoare 
+# Invariants
+## Logique de Hoare
 Logique qui permet de raisonner sur les programmes sequentielles.
 
+## The Hoare triple
 _[p] C [q]_ 
 - p : pre-condition 
 - C : Calcul 
 - q : post-contition
+
+## Keywords
+- Sequence : `a ; b`
+Two conditions: `{P} C1 {Q}` and `{Q} C2 {R}` sequence to `{P} C1; C2 {R}`  
+![para-hoare-seq](./images/para-hoare-seq.png)
+- Skip (do nothing): `SKIP`
+- Variable assignment: `X:=0`
+- Conditional: `IF cond THEN a ELSE b FI`
+- Loop: `WHILE cond DO c OD`
+
+### Example
+`{X=1} X:= X+1 {X=2}`
 
 ## Linearisability 
 
