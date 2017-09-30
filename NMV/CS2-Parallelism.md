@@ -154,6 +154,13 @@ Relay race where the athlete passes on the baton to the next athlete in queue wh
 
 ![anderson](./images/para-anderson.png)
 
+- Shorter handover than backoff
+- Curve is practically flat
+- Scalable performance 
+- FIFO fairness
+
+![anderson2](./images/para-anderson2.png)
+
 
 ## Hazard pointers - Michael's algorithm
 Michael adds to the previous algorithm a _global array_ `H` of _hazard pointers_: 
