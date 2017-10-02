@@ -53,13 +53,13 @@ Résumé des caractéristiques des protocoles WT et WB.
 Schema des états d'une ligne (L1)
 
 #### WTI Non Allocate
-![WTI non Allocate Schema](./res/image1.png)
+![WTI non Allocate Schema](./res/Image1.png)
 
 #### WB MSI (Allocate)
-![WB MSI (Allocate) Schema](./res/image2.png)
+![WB MSI (Allocate) Schema](./res/Image2.png)
 
 #### WB MESI
-![WB MESI Schema](./res/image3.png)
+![WB MESI Schema](./res/Image3.png)
 
 ### 3. Specification des protocoles
 
@@ -74,7 +74,7 @@ Schema des états d'une ligne (L1)
 2. Spécification de haut-niveau d'une protocole WTI
 
 Cache L1		
-
+```
 	Si réception d'une requête d'invalidation.
 		Invalider la ligne (si présente)
 		Répondre à la requète d'invalidation
@@ -91,10 +91,10 @@ Cache L1
 				Mettre a jour le cache
 			Envoyer l'écriture vers la mémoire (la mettre dans le write-buffer)
 			Répondre au processeur
-
+```
 
 Cache L2
-
+```
 	Recevoir une requête d'un cache L1
 		Si Read
 			Ajouter le cache L1 à la liste des caches ayant une copie
@@ -104,11 +104,11 @@ Cache L2
 			Attendre que toutes les réponses soient obtenues
 			Mettre a jour la ligne
 			Répondre au cache L1
-
+```
 **Update (WTU)**
 
 Cache L1		
-
+```
 	Si réception d'une requête d'update.
 		Lettre a jour la ligne
 		Répondre à la requète d'invalidation
@@ -125,10 +125,10 @@ Cache L1
 				Mettre a jour le cache
 			Envoyer l'écriture vers la mémoire (la mettre dans le write-buffer)
 			Répondre au processeur
-
+```
 
 Cache L2
-
+```
 	Recevoir une requête d'un cache L1
 		Si Read
 			Ajouter le cache L1 à la liste des caches ayant une copie
@@ -138,7 +138,7 @@ Cache L2
 			Attendre que toutes les réponses soient obtenues
 			Mettre a jour la ligne
 			Répondre au cache L1
-
+```
 
 3. Spécification de haut niveau d'un protocole WB-MESI
 
@@ -188,6 +188,7 @@ N° | a | b
 
 
 ##### N°1
+```
 	a > b (Non propre a la cohérence)
 		W(X)
 		R(X)
@@ -196,7 +197,7 @@ N° | a | b
 		W(X)
 		W(X+LINE_SIZE)
 		W(X+2*LINE_SIZE)
-
+```
 #### N°2
 
 **a>b**
