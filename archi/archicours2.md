@@ -1,6 +1,6 @@
 # Coherence de cache
 
-### I.Introduction
+## 1. Introduction
 
 Après les protocoles Write-Through et Write-Back
 
@@ -9,16 +9,18 @@ Après les protocoles Write-Through et Write-Back
 * On parle de vue cohérente de la mémoire entre les differents caches/coeurs.
 
 
-### II. Types et dégrés de liberté des protocles de cohérence
+## 2. Types et dégrés de liberté des protocles de cohérence
 
 1. Write-Through ou Write-Back
-2. Allocation sur écriture ou non (suite a un miss write)
+2. Allocation sur écriture ou non (suite a un miss write).
 Ces deux points ne sont pas propres a la cohérence.
+
 3. Espionnage (snoop) ou répertoire (directory)
   * **Espionnage**: les caches (L1) "voient" passer les requêtes et se mettent a jour tout seuls (Utilisé en général sur le bus)
   * Avec **répertoire**, un ou plusieurs composants matériels centralisent les informations relatives au copies. (nombres et numéro du cache L1 qui ont une copie + état de la ligne)
   * Utilisé en général sur un NoC (Network On Chip) ou un crossbar
   * Pas nécessairement le cas (ex: scorpio)
+
 4. **Invalidation ou mise à jour**: lorsque le controleur du L2 reçoit une écriture sur une ligne qui contient des copies, doit-il envisager des mises à jour avec la nouvelle valeur ou simplement invalider ces copies?
   * Avantage des mises a jour: évite des futurs miss potentiels
   * Avantage des invalidations: évite de générer plein de requêtes de mise a jour (update) vers des copies qui ne sont pas utilisées
@@ -37,20 +39,20 @@ Note: les protocoles peuvent être plus compliqués que ça, par exemple hierarc
 
 Dans la suite on ne s'interessera qu'aux protocoles à base de directory
 
-Résumé des caractéristiques des protocoles WT et WB.
+### Résumé des caractéristiques des protocoles WT et WB.
 
-*Write-Through*
+#### *Write-Through*
 * Peu complexe, peu de mémoire nécessaire
 * idée: propager toutes les écritures vers le L2 (pareil monocoeur)
 * Traffic élevé, pas acceptable sur certains réseaux d'interconnection
 
-*Write-Back*
+#### *Write-Back*
 * Plus complexe
 * Plus de bits de méta-données par ligne
 * Moins de traffic, donc moins de consommation
 
 
-Schema des états d'une ligne (L1)
+### Schémas des états d'une ligne de cache L1
 
 #### WTI Non Allocate
 ![WTI non Allocate Schema](./res/Image1.png)
@@ -63,7 +65,7 @@ Schema des états d'une ligne (L1)
 
 ### 3. Specification des protocoles
 
-1. Définitions
+#### 3.1. Définitions
 
 * **Requête directe** : requête dont le but est de fournir à un cache L1 une copie et/ou des droits d'écriture
 
@@ -71,65 +73,65 @@ Schema des états d'une ligne (L1)
 
 + A chaque requête est envoyée une réponse
 
-2. Spécification de haut-niveau d'une protocole WTI
+#### 3.1.2. Spécification de haut-niveau d'un protocole WTI
 
-Cache L1		
+**Cache L1**
 ```
-	Si réception d'une requête d'invalidation.
+	Si réception d'une requête d'invalidation:
 		Invalider la ligne (si présente)
 		Répondre à la requète d'invalidation
-	Sinon si reception d'une requête du processeur
-		Si Read
-			Si Hit
+	Sinon si reception d'une requête du processeur:
+		Si Read:
+			Si Hit:
 				Repondre au processeur
-			Si Miss
+			Si Miss:
 				Envoyer une requiète de type miss vers le L2
 				Attendre la réponse puis séléctionner une ligne victime et la remplacer
-        avec la ligne reçue
+			          avec la ligne reçue
 				Répondre au processeur (ou retour en IDLE)
-		Si Write
-			Si Hit
+		Si Write:
+			Si Hit:
 				Mettre a jour le cache
 			Envoyer l'écriture vers la mémoire (la mettre dans le write-buffer)
 			Répondre au processeur
 ```
 
-Cache L2
+**Cache L2**
 ```
 	Recevoir une requête d'un cache L1
-		Si Read
+		Si Read:
 			Ajouter le cache L1 à la liste des caches ayant une copie
 			Envoyer une réponse avec la ligne
-		Si Write
+		Si Write:
 			Pour chaque L1 ayant une copie: Invalidation (requête)
 			Attendre que toutes les réponses soient obtenues
 			Mettre a jour la ligne
 			Répondre au cache L1
 ```
-**Update (WTU)**
+#### **Update (WTU)**
 
-Cache L1		
+**Cache L1**
 ```
-	Si réception d'une requête d'update.
-		Lettre a jour la ligne
+	Si réception d'une requête d'update:
+		Mettre a jour la ligne
 		Répondre à la requète d'invalidation
-	Sinon si reception d'une requête du processeur
-		Si Read
-			Si Hit
+	Sinon si reception d'une requête du processeur:
+		Si Read:
+			Si Hit:
 				Repondre au processeur
-			Si Miss
+			Si Miss:
 				Envoyer une requiète de type miss vers le L2
 				Attendre la réponse puis séléctionner une ligne victime et la remplacer
         avec la ligne reçue
 				Répondre au processeur (ou retour en IDLE)
-		Si Write
-			Si Hit
+		Si Write:
+			Si Hit:
 				Mettre a jour le cache
 			Envoyer l'écriture vers la mémoire (la mettre dans le write-buffer)
 			Répondre au processeur
 ```
 
-Cache L2
+**Cache L2**
 ```
 	Recevoir une requête d'un cache L1
 		Si Read
@@ -142,44 +144,42 @@ Cache L2
 			Répondre au cache L1
 ```
 
-3. Spécification de haut niveau d'un protocole WB-MESI
+#### 3.1.3. Spécification de haut niveau d'un protocole WB-MESI
 
-Une ligne dans L1 peut être dans 4 états:
-
-**M:** Modified (droit de R/W et ligne dirty)
-
-**E:** Exclusive (droit de R/W et ligne clean)
-
-**S:** Shared droit de lecture
-
-**I:** Invalidations
+Une ligne de cache L1 peut être dans 4 états:
+* **M:** Modified (droit de R/W et ligne dirty)
+* **E:** Exclusive (droit de R/W et ligne clean)
+* **S:** Shared droit de lecture
+* **I:** Invalidations
 
 Au niveau du L2, liste des copies pour chaque ligne + état S ou E/M (ou I)
 
-Type de requête:
+**Types de requête**
 * MISS: miss de lecture (RSP.MISS, RSP.MISS.EXCLU)
 * GETM: requête pour droit d'écriture quand la ligne est déjà présente dans le L1 (Dans l'état S) (RSP.GETM)
-* GETM.LINE: droit écriture et copie de la ligne (RSP.GETM.LINE)
-* WRITE-BACK: recopie d'une ligne dirty en mémoire (RSP.WRITE-BACK)
-*Coherence*
-* INVAL: invalidation (RSP.INVAL. CLEAN, RSP.INVAL.DIRTY)
-* INVAL.RO: supression du droit d'écriture (RSP.INVAL.RO.CLEAN, RSP.INVAL.RO.DIRTY)
+* GETM_LINE: droit écriture et copie de la ligne (RSP_GETM_LINE)
+* WRITE_BACK: recopie d'une ligne dirty en mémoire (RSP_WRITE_BACK)
+
+**Requêtes pour la cohérence**
+* INVAL: invalidation (RSP_INVAL_CLEAN, RSP_INVAL_DIRTY)
+* INVAL_RO: supression du droit d'écriture (RSP_INVAL_RO_CLEAN, RSP_INVAL_RO_DIRTY)
+
 
 * Quand le L2 reçoit une requête de type MISS:
-  * S'il n'y a pas de copies réponse RSP.MISS.EXCLU et passage a l'état E/M
-  * Si al ligne est dsans l'état S, ajout du cache L1 a la liste et réponse RSP.MISS
-  * Si la ligne est dans l'état E/M, avoi INVAL.RO puis passage dans l'état S (RSP_MISS)
+  * S'il n'y a pas de copies, réponse RSP_MISS_EXCLU et passage a l'état E/M
+  * Si la ligne est dans l'état S, ajout du cache L1 a la liste et réponse RSP.MISS
+  * Si la ligne est dans l'état E/M, envoi de INVAL_RO puis passage dans l'état S (RSP_MISS)
 
-* Quand le L2 reçoit un GETM(.LINE)
-  * Invalidations (INVAL) des copies sauf L1 ayant fait la requête
+* Quand le L2 reçoit un GETM(_LINE)
+  * Invalidation (INVAL) des copies sauf L1 ayant fait la requête
   * Passage dans l'état M
-  * RSP.GETM(.LINE)
+  * RSP_GETM(_LINE)
 
-* Quand L1 reçoit une requête INVAL (resp. INVAL.RO)
-  * Si la ligne n'est aps en cache (ou invalide) RSP.INVAL(.RO)
-  * Si la ligne est en cache: chargement dans l'état I(resp. S) puis réponse avec copie de la ligne si la ligne est dirty *Spécif complète TP2*
+* Quand L1 reçoit une requête INVAL (resp. INVAL_RO)
+  * Si la ligne n'est pas en cache (ou invalide): RSP_INVAL(_RO)
+  * Si la ligne est en cache: chargement dans l'état I (resp. S) puis réponse avec copie de la ligne si la ligne est dirty *Spécif complète TP2*
 
-  * Une suite de requêtes (R/W a des adresses) et plus efficaces pour le protocole (a) le protocole (b) et reciproquement.
+  * Une suite de requêtes (R/W à des adresses) et plus efficaces pour le protocole (a) le protocole (b) et reciproquement.
 
 N° | a | b
 ---|---|---
@@ -305,21 +305,21 @@ jr $31
 **c.** Pour l'execution complète
 
 * WTI:
-  * \#miss = 1(*curr_elem P0*) +2048/4 (*tab p0*) + 1 (*curr_elem p1*) +2048/4 (*tab p1*)
-  * \#inval = 1(*ecriture curr_elem*)
-  * \#écritures vers L2: 8192 (*2048 tab P0, 2048 tab P1, 2048 curr_elem P0, 2048 curr_elem P1*)
+  * \\#miss = 1(*curr_elem P0*) +2048/4 (*tab p0*) + 1 (*curr_elem p1*) +2048/4 (*tab p1*)
+  * \\#inval = 1(*ecriture curr_elem*)
+  * \\#écritures vers L2: 8192 (*2048 tab P0, 2048 tab P1, 2048 curr_elem P0, 2048 curr_elem P1*)
 
 
 * WTU:
-  * \#miss = 1026
-  * \#updates = 2048 (*écriture curr_elem dans P1*)
-  * \#écritures = 8192
+  * \\#miss = 1026
+  * \\#updates = 2048 (*écriture curr_elem dans P1*)
+  * \\#écritures = 8192
 
 
 * WB:
-* \#miss = 1 + 2048/4 + 1 + 2048/4
-* \#GETM = 1 (*curr_elem P1*)
-* \#GETM_LINE = 0
-* \#WRITE_BACK = 0
-* \#INVAL = 1 (*ecriture curr_elem P1* CLEAN)
-* \#INVAL_RO = 1 (*ecriture curr_elem p1* DIRTY)
+  * \\#miss = 1 + 2048/4 + 1 + 2048/4
+  * \\#GETM = 1 (*curr_elem P1*)
+  * \\#GETM_LINE = 0
+  * \\#WRITE_BACK = 0
+  * \\#INVAL = 1 (*ecriture curr_elem P1* CLEAN)
+  * \\#INVAL_RO = 1 (*ecriture curr_elem p1* DIRTY)
