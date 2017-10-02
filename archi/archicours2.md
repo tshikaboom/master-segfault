@@ -84,7 +84,8 @@ Cache L1
 				Repondre au processeur
 			Si Miss
 				Envoyer une requiète de type miss vers le L2
-				Attendre la réponse puis séléctionner une ligne victime et la remplacer avec la ligne reçue
+				Attendre la réponse puis séléctionner une ligne victime et la remplacer
+        avec la ligne reçue
 				Répondre au processeur (ou retour en IDLE)
 		Si Write
 			Si Hit
@@ -118,7 +119,8 @@ Cache L1
 				Repondre au processeur
 			Si Miss
 				Envoyer une requiète de type miss vers le L2
-				Attendre la réponse puis séléctionner une ligne victime et la remplacer avec la ligne reçue
+				Attendre la réponse puis séléctionner une ligne victime et la remplacer
+        avec la ligne reçue
 				Répondre au processeur (ou retour en IDLE)
 		Si Write
 			Si Hit
@@ -192,7 +194,8 @@ N° | a | b
 	a > b (Non propre a la cohérence)
 		W(X)
 		R(X)
-			Pas vraiment de cas, sauf si l'allocation est en préchargement (pas bloquant)
+			Pas vraiment de cas, sauf si l'allocation est en préchargement (
+        pas bloquant)
 	b > a
 		W(X)
 		W(X+LINE_SIZE)
