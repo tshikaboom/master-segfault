@@ -2,51 +2,51 @@
 
 ### I.Introduction
 
-Après les protocoles Write Through et write-back
+Après les protocoles Write-Through et Write-Back
 
-* Que se passe-t-il en milieu multicoeur
-* Notion de cohérence de cache
-  * Garantir que toutes les copies (calides) d'une ligne de la mémoire ont la lmême valeur a un instant donné.
+* Que se passe-t-il en milieu multicoeur?
+* Notion de **cohérence de cache**: garantir que toutes les copies (valides) d'une ligne de la mémoire ont la même valeur à un instant donné.
 * On parle de vue cohérente de la mémoire entre les differents caches/coeurs.
 
 
 ### II. Types et dégrés de liberté des protocles de cohérence
 
-1. write-through ou write-back
-2. allocation sur écriture ou non (suite a un miss write ces deux points ne sont pas propres a la cohérence)
+1. Write-Through ou Write-Back
+2. Allocation sur écriture ou non (suite a un miss write)
+Ces deux points ne sont pas propres a la cohérence.
 3. Espionnage (snoop) ou répertoire (directory)
-  * Espionnage les caches (L1) "voient" passer les requêtes et se mettent a jour tout seuls (Utilisé en général sur le bus)
-  * Avec répertoire, un ou plusieurs compsoants matériels centralisent les informations relatives au copies. (nombres et numéro du cache L1 qui ont une copie + état de la ligne)
+  * **Espionnage**: les caches (L1) "voient" passer les requêtes et se mettent a jour tout seuls (Utilisé en général sur le bus)
+  * Avec **répertoire**, un ou plusieurs composants matériels centralisent les informations relatives au copies. (nombres et numéro du cache L1 qui ont une copie + état de la ligne)
   * Utilisé en général sur un NoC (Network On Chip) ou un crossbar
   * Pas nécessairement le cas (ex: scorpio)
-4. Invalidations ou mise a jour bloque le controleur du L2 reçoit une écriture sur une ligne qui contient des copies, doit-il envisager des mises à jouravec la nouvelle valeur ou simplement invalider ces copies
-  * Avantage des mises a jour évite des futures miss porentiels
-  * avantage des invalidations évite de générer plein de requiêtes de mise a jour (update) vers des copies qui ne sont pas utilisées
+4. **Invalidation ou mise à jour**: lorsque le controleur du L2 reçoit une écriture sur une ligne qui contient des copies, doit-il envisager des mises à jour avec la nouvelle valeur ou simplement invalider ces copies?
+  * Avantage des mises a jour: évite des futurs miss potentiels
+  * Avantage des invalidations: évite de générer plein de requêtes de mise a jour (update) vers des copies qui ne sont pas utilisées
 
-En pratique, toutes les combinaisons ne pas possible/pertinente.
+En pratique, toutes les combinaisons ne pas possibles/pertinentes.
 
 Exemple:
 * WTI (Write-Through Invalidate), write non allocate (snoop, dir)
-* WTI, write allocate
-* WTU (Write-Through Update), write non allocate
-* WB MSI allocate
-* WB MESI allocate
+* WTI, write allocate (snoop, dir)
+* WTU (Write-Through Update), write non allocate (snoop, dir)
+* WB MSI allocate (snoop, dir)
+* WB MESI allocate (snoop, dir)
 * WB MOESI allocate (directory)
 
-Note: les protocoles peuvent être plus compliqués que ça, par exemple hierarchiques, hyibride,..
+Note: les protocoles peuvent être plus compliqués que ça, par exemple hierarchiques, hybrides,..
 
 Dans la suite on ne s'interessera qu'aux protocoles à base de directory
 
 Résumé des caractéristiques des protocoles WT et WB.
 
 *Write-Through*
-* Pas de compteur peu de mémoire nécessaire
-* idée propager toutes les écritures vers le L2 (pareil monocoeur)
+* Peu complexe, peu de mémoire nécessaire
+* idée: propager toutes les écritures vers le L2 (pareil monocoeur)
 * Traffic élevé, pas acceptable sur certains réseaux d'interconnection
 
 *Write-Back*
 * Plus complexe
-* Plus de bits de méra-données par ligne
+* Plus de bits de méta-données par ligne
 * Moins de traffic, donc moins de consommation
 
 
@@ -65,9 +65,9 @@ Schema des états d'une ligne (L1)
 
 1. Définitions
 
-* Requête direct : requête dont le but est de fournir a un cache L1 une copie et/ou des d'écriture
+* **Requête directe** : requête dont le but est de fournir à un cache L1 une copie et/ou des droits d'écriture
 
-* Requête de cohérence :  une requête dont le but est de farantir la cohérence entre les caches L1 et le L2: une telle requête a pour initiateur le cache L2 et pour destination un(des) cache(s) L1
+* **Requête de cohérence** :  une requête dont le but est de garantir la cohérence entre les caches L1 et le L2: une telle requête a pour initiateur le cache L2 et pour destination un(des) cache(s) L1
 
 + A chaque requête est envoyée une réponse
 
