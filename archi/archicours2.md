@@ -305,21 +305,21 @@ jr $31
 **c.** Pour l'execution complète
 
 * WTI:
-  * \\#miss = 1(*curr_elem P0*) +2048/4 (*tab p0*) + 1 (*curr_elem p1*) +2048/4 (*tab p1*)
-  * \\#inval = 1(*ecriture curr_elem*)
-  * \\#écritures vers L2: 8192 (*2048 tab P0, 2048 tab P1, 2048 curr_elem P0, 2048 curr_elem P1*)
+  * \#miss = 1(*curr_elem P0*) +2048/4 (*tab p0*) + 1 (*curr_elem p1*) +2048/4 (*tab p1*)
+  * \#inval = 1(*ecriture curr_elem*)
+  * \#écritures vers L2: 8192 (*2048 tab P0, 2048 tab P1, 2048 curr_elem P0, 2048 curr_elem P1*)
 
 
 * WTU:
-  * \\#miss = 1026
-  * \\#updates = 2048 (*écriture curr_elem dans P1*)
-  * \\#écritures = 8192
+  * \#miss = 1026
+  * \#updates = 2048 (*écriture curr_elem dans P1*)
+  * \#écritures = 8192
 
 
 * WB:
-  * \\#miss = 1 + 2048/4 + 1 + 2048/4
-  * \\#GETM = 1 (*curr_elem P1*)
-  * \\#GETM_LINE = 0
-  * \\#WRITE_BACK = 0
-  * \\#INVAL = 1 (*ecriture curr_elem P1* CLEAN)
-  * \\#INVAL_RO = 1 (*ecriture curr_elem p1* DIRTY)
+  * \#miss = 1 + 2048/4 + 1 + 2048/4
+  * \#GETM = 1 (*curr_elem P1*)
+  * \#GETM_LINE = 0
+  * \#WRITE_BACK = 0
+  * \#INVAL = 1 (*ecriture curr_elem P1* CLEAN)
+  * \#INVAL_RO = 1 (*ecriture curr_elem p1* DIRTY)
