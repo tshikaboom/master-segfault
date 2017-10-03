@@ -110,6 +110,7 @@ class AtomicReference<T> {
 ```
 
 This mechanism is used essentially to implement low level locks.
+ 
 
 ## The ABA problem
 The ABA problem occurs during synchronization, when a location is read twice, has the same value for both reads, and "value is the same" is used to indicate "nothing has changed". However, another thread can execute between the two reads and change the value, do other work, then change the value back, thus fooling the first thread into thinking "nothing has changed" even though the second thread did work that violates that assumption.
@@ -124,6 +125,42 @@ Although `p1` can continue executing, it is possible that the behavior will not 
 
 ### ELI5
 John is waiting in his car at a red traffic light with his children. His children start fighting with each other while waiting, and he leans back to scold them. Once their fighting stops, John checks the light again and notices that it's still red. However, while he was focusing on his children, the light had changed to green, and then back again. John doesn't think the light ever changed, but the people waiting behind him are very mad and honking their horns now.
+
+## Test and test and set
+Wait until lock looks free by spinning on local cache. No bus use while lock busy.  
+Problem? When lock is released - invalidation storm.
+
+## Exponential Backoff
+Easy to implement, same thing as in a CSMA/CA. On spinlock, back off, wait for exponentially inreasing period of time (usually bounded).  
+[+] Easy to implement  
+[+] Better performance than TTAS  
+[-] 'Pifologique' fine-tuning  
+[-] Not portable across architectures/platforms
+
+![spin-compare](./images/para-spinn-comp.png)
+## Anderson Queue Lock
+### Idea
+Avoids useless invalidations by keeping a queue of threads. Each thread notifies next in line withought bothering the others. Fairness is ensured by using FIFO queue mechanism.  
+
+[+] First truly scalable lock  
+[+] Simple, easy to implement 
+[-] Space hog  
+[-] One bit per thread  
+- Unknown number of threads  
+- Small number of actual contenders?
+
+### ELI5
+Relay race where the athlete passes on the baton to the next athlete in queue which ensures that the only one athlete acquires the baton.
+
+![anderson](./images/para-anderson.png)
+
+- Shorter handover than backoff
+- Curve is practically flat
+- Scalable performance 
+- FIFO fairness
+
+![anderson2](./images/para-anderson2.png)
+
 
 ## Hazard pointers - Michael's algorithm
 Michael adds to the previous algorithm a _global array_ `H` of _hazard pointers_: 
@@ -166,22 +203,41 @@ push (b) {
 }
 
 ```
-## LL/SC - Loal Link / Store Conditional 
+## LL/SC - Load Link / Store Conditional 
 Similar to CAS but very hard to implement
-Supervise @s, if they change, tell user. 
+Supervise addresses, if they change, notify. 
 
 `Load-Link(x)` supervises `x` address  
 `Store-Conditional (x, y)`
 - `x := y` return true, only if `x` was not modified since `Load-Link(x)`
 
-#Invariants
-## Logique de Hoare 
+# Invariants
+## Logique de Hoare
 Logique qui permet de raisonner sur les programmes sequentielles.
 
+## The Hoare triple
 _[p] C [q]_ 
 - p : pre-condition 
 - C : Calcul 
 - q : post-contition
+
+## Primitives
+- Sequence : `a ; b`
+Two conditions: `{P} C1 {Q}` and `{Q} C2 {R}` sequence to `{P} C1; C2 {R}`  
+Example `(Swap X Y)`:
+![para-hoare-seq](./images/para-hoare-seq.png)
+- Skip (do nothing): `SKIP`  
+`{P} SKIP {P}`
+- Variable assignment: `X:=0`
+- Conditional: `IF cond THEN a ELSE b FI`
+- Loop: `WHILE cond DO c OD`  
+`{P ^ S} C {P}` -> `{P} WHILE _S_ DO _C_ {P ^ !S}`  
+    - P is an _invariant_ for _C_ whenever _S_ holds
+    - _WHILE_ rule: If executing _C_ once preserves the truth of P, then executing _C_ any number of times also preserver the truth of _P_
+    - If _P_ is an invarant for _C_ when _S_ holds then _P_ is an invariant of the __whole__ `WHILE` loop, i.e. a _loop invariant_
+    - Finding the invariant: 
+### Example
+`{X=1} X:= X+1 {X=2}`
 
 ## Linearisability 
 
@@ -212,4 +268,3 @@ The number of registers needed to implement it is exponential to the number of t
 - Memory Contention 
 - Communication Contention 
 - Communication Latency
-
