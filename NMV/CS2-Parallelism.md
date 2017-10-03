@@ -263,8 +263,11 @@ The number of registers needed to implement it is exponential to the number of t
 
 # Architectures
 ## MIMD - Multiple Instruction Multiple Data
+MIMD instructions are used in large scale systems; this means that at any time, multiple processors may be working on multiple data sets. This is in contrast with SIMD instructions, where a single instruction is operating on multiple datasets: the processor may be using its ALU(s) and FPU(s) etc. at the same time but there is no inherent concurrency in execution, since there is only one instruction to execute from the CPU's point of view.
+
+MIMD processors usually make use of a shared bus to access the central memory shared between the CPUs.
 
 ### Shared bus 
-- Memory Contention 
-- Communication Contention 
-- Communication Latency
+- Memory Contention: different processes want to access a single memory location at the same time, creating contention.
+- Communication Contention: different processes want to access the shared bus at the same time, someone has to give permission for a process at a time to do it. Processes will therefore be usually waiting an arbitrary amount of time before accessing the bus.
+- Communication Latency: muh contention brings latency.
