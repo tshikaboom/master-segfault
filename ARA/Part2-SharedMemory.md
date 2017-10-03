@@ -44,10 +44,40 @@ for (j = 1 to n) {
 timestamp[i]=0
 }
 ```
+
+## Linearizibility
+For any concurrent execution, there is a total order of the operations such that each read to a location (_variable_) returns the value written by the last write to this location (_variable_) that precedes in the ordered. Total order.
+
+Other more relaxed models exist 
+- sequential 
+- causal
+- PRAM 
+- weak, etc...
+
+### Specs
+- The total order must be consistent with the temporal order of operations
+- Each operation _op(Read or Write)_ has an _invocation_ and _response_ events  
+An execution in global time is viewed as sequence _seq_ of such invocations and responses
+
 ## Registers
+Abstraction of distributed shared memory by Lamport
+
 ### Safe register 
+- _Read_ does not overlap with a _write_  
+_Read_ returns the most recently written value
+- _Read_ overlaps with a _write_  
+_Read_ returns any value that the register could possibly have
+
 
 ### Regular register
+It is a _safe_ register and: 
+- if _Read_ overlaps with a _write_ then _read_ returns either the most recent value of a concurrently written value
 
 ### Atomic register
+is _regular_ and 
+- _read_ and _write_ that overlap are _linearizable_. There exists an equivalent totally ordered sequentilal execution of them
 
+# TODO
+List
+- [ ] Add images for safe, regular and atomic registers from cs
+- [ ] Compare linearazability and sequentialy
