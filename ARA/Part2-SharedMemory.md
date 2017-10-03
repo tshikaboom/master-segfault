@@ -220,8 +220,7 @@ bool Read(R){
     return(val);
 }
 ```
-### 2.1
-Quel modele de coherence?  
+### 2.1 Quel modele de coherence?  
 // TODO: Add image
 Pas de overlap entre `p2.write(x,3)` et `p3.read(x)`
 
@@ -236,3 +235,31 @@ Sequence possible: `p2.write(x, 1), p1.read(x)=1, p1.write(y,2), p3.write(y,4), 
 `write(x, 3) -> write(y, 4)`  
 Par transitivite:  
 `write(x, 1) -> write(y, 4)`
+
+### 2.3 Sequential? Causal? PRAM?
+Causal : les operations d'ecriture liees causalement sont vues dans le meme ordre par tous les processus  
+Causal implique PRAM
+
+Pas de coherence sequentielle, contre-exemple:  
+`p2: w(y, 2), r(y)=4`  
+`p3: w(y, 4), r(y)=2`
+
+### 2.4 Sequential au lieu de linearizability
+Voir schema Linearizibility slide 14 - modele sequentiel  
+Pas strict, car pas de overlap entre `p1.write(x, 1)` et `p2.read(x)=0`
+
+```
+int x;
+upon operation(op, val)
+if(op==write) 
+	total_order_broadcast(op, id_i);
+else 
+	return x;
+
+upon deliver of messages<write, val, id> 
+x = val;
+if (id = id_i)
+	return ok; 
+```
+
+// TODO Elle a reecrit la meme chose que sur le poly? 
