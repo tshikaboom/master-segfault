@@ -23,26 +23,27 @@ N-processes. Uses two shared variables, _flag[2]_ and _turn_. Starvation-free.
 - _flag_ at 1 indicates that the process wants to enter the CS
 - _turn_ holds the id of the process whose turn it is 
 #### Code
-```c 
-// Init
-choosing[1..n] = 0; 
-timestamp[1..n] = 0;
+```
+	c
+	// Init
+	choosing[1..n] = 0;
+	timestamp[1..n] = 0;
 
-// Shared variables 
-bool boosing[n];
-int timestamp[n];
+	// Shared variables
+	bool boosing[n];
+	int timestamp[n];
 
-// Entry CS Code
-choosing[i] = 1; 
-timestamp[i] = 1 + max(timestamp);
-choosing[i] = 0;
-for (j = 1 to n) {
-    await(choosing[j]=0);
-    await(timestamp[j] == 0) or (timestamp[i] < timestamp[j]);
+	// Entry CS Code
+	choosing[i] = 1;
+	timestamp[i] = 1 + max(timestamp);
+	choosing[i] = 0;
+	for (j = 1 to n) {
+	    await(choosing[j]=0);
+	    await(timestamp[j] == 0) or (timestamp[i] < timestamp[j]);
 
-// Exit CS Code 
-timestamp[i]=0
-}
+	// Exit CS Code
+	timestamp[i]=0
+	}
 ```
 ## Registers
 ### Safe register 
@@ -51,3 +52,54 @@ timestamp[i]=0
 
 ### Atomic register
 
+# TD
+
+## Exercice 1.7
+```
+read_modify_write
+	register int ticket = 0;
+	register int valid = 0;
+	inc (register r) {
+		r = (r+1)%n
+	}
+	int ticket i;
+
+	EntrySC:
+		ticket i = read_modify_write(ticket, inc);
+		while(ticket i != valid);
+
+	ExitSC:
+		read_modify_write(valid, inc);
+
+```
+## Exercice 1.8
+```
+	register int ticket = 0;
+	atomic bit valid[N] (valid[0] = 1; valid[2..N-1] = 0);
+
+	EntrySC:
+		ticket_i = read_modify_write(ticket_i, inc);
+		while (valid[ticket_i] != 1);
+	ExitSC:
+		valid[ticket_i] = 0;
+		valid[(ticket_i+1)%N] = 1;
+```
+## Exercice 1.9
+```
+On a ticket = 0 et valid = [1 0 0 0]
+
+Proc_i: EntrySC
+	ticket_i = 0
+	ticket_j = 1
+	ticket = 2
+	valid = [1 0 0 0]
+
+Proc_i: ExitSC
+	ticket = 2
+	valid = [0 1 0 0]
+
+Proc_j: EntrySC
+Proc_j: ExitSC
+	ticket = 2
+	valid = [0 0 1 0]
+```
