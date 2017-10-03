@@ -123,7 +123,8 @@ K vient de rentrer en ph1, donc ts[k]=0
 i va en ph2 et ph3 donc en SC  
 K reprend la main - son ts[k] avec le max =1, il arrive en ph2, ts[k]=ts[i], et k<i donc aussi SC.
 
-1.6(1.7/2017, I guess) Donnez le code d'un tel algorithme
+## 1.6 Donnez le code d'un tel algorithme
+(1.7/2017, I guess)
 ```
 Read-modify-write
         register int ticket = 0;
@@ -142,7 +143,7 @@ Exit SC:
 
 
 
-## Exercice 1.7
+## 1.7
 ```
 read_modify_write
 	register int ticket = 0;
@@ -160,7 +161,7 @@ read_modify_write
 		read_modify_write(valid, inc);
 
 ```
-## Exercice 1.8
+## 1.8
 ```
 	register int ticket = 0;
 	atomic bit valid[N] (valid[0] = 1; valid[2..N-1] = 0);
