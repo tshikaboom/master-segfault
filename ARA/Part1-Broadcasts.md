@@ -99,5 +99,3 @@ Both causal and FIFO orders are only partial orders; there's no properties about
 
 ### Total
 The messages are delivered in the same order to all the destinaties. 
-
-# 

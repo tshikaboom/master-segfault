@@ -81,7 +81,7 @@ is _regular_ and
 ## 1.1 Est-ce que la variable timestamp est bornée? Justifiez
 Non borne. Si les processus reviennent on est pas oblige de retourner a 0
 
-Deux processus I et j peuvent avoir le timestamp: timestamp[i]=timestamp[j]. En se basant sur le code de la fonction max ci dessus expliquez comment cette égalité peut arriver. Est-t-elle un problème? Justifier.
+## 1.X Deux processus I et j peuvent avoir le timestamp: timestamp[i]=timestamp[j]. En se basant sur le code de la fonction max ci dessus expliquez comment cette égalité peut arriver. Est-t-elle un problème? Justifier.
 C'est pas atomique, on peut se retrouver dans la même instruction.
 Entre SC n'est pas protégée contre plusieurs accès concurrents alors entre 2 instructions on se retrouve avec 2 processus -> même timestamp à la fin / non c'est pas un problème car L6 comparaison entre les indices
 
