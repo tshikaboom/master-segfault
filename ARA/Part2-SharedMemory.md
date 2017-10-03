@@ -4,13 +4,13 @@
 ### Peterson algorithm
 Originally syncs two threads, has been expanded to an arbitrary number of processes. However the size of the array is exponential to the number of processes.  
 Informally, consider the case where T1 enters the critical section. Then the loop condition must have been false, which means either flag2 was false or victim was set to 2. If flag2 was false, then T2 was not even trying to enter the critical section. If victim was set to 2, then T2 was trying to enter the critical section, but T1 won the race.
-#### Code 
+#### Code
 ```c
 T1                           T2
 flag1 = true                 flag2 = true
 victim = 1                   victim = 2
-while (flag2 &&              while (flag1 && 
-    victim == 1) {}              victim == 2) {} 
+while (flag2 &&              while (flag1 &&
+    victim == 1) {}              victim == 2) {}
 // critical section          // critical section
 flag1 = false                flag2 = false
 ```
@@ -21,7 +21,7 @@ Be a gentleman, let people go through the door before going yourself.
 ### Lamport Bakery Algorithm
 N-processes. Uses two shared variables, _flag[2]_ and _turn_. Starvation-free.
 - _flag_ at 1 indicates that the process wants to enter the CS
-- _turn_ holds the id of the process whose turn it is 
+- _turn_ holds the id of the process whose turn it is
 #### Code
 ```c
 // Init
@@ -48,10 +48,10 @@ timestamp[i]=0
 ## Linearizibility
 For any concurrent execution, there is a total order of the operations such that each read to a location (_variable_) returns the value written by the last write to this location (_variable_) that precedes in the ordered. Total order.
 
-Other more relaxed models exist 
-- sequential 
+Other more relaxed models exist
+- sequential
 - causal
-- PRAM 
+- PRAM
 - weak, etc...
 
 ### Specs
@@ -62,7 +62,7 @@ An execution in global time is viewed as sequence _seq_ of such invocations and 
 ## Registers
 Abstraction of distributed shared memory by Lamport
 
-### Safe register 
+### Safe register
 - _Read_ does not overlap with a _write_  
 _Read_ returns the most recently written value
 - _Read_ overlaps with a _write_  
@@ -70,11 +70,11 @@ _Read_ returns any value that the register could possibly have
 
 
 ### Regular register
-It is a _safe_ register and: 
+It is a _safe_ register and:
 - if _Read_ overlaps with a _write_ then _read_ returns either the most recent value of a concurrently written value
 
 ### Atomic register
-is _regular_ and 
+is _regular_ and
 - _read_ and _write_ that overlap are _linearizable_. There exists an equivalent totally ordered sequentilal execution of them
 
 # TD
@@ -87,13 +87,13 @@ Entre SC n'est pas protégée contre plusieurs accès concurrents alors entre 2 
 
 ## 1.2 En donnant un scenario d'exécution, expliquez pourquoi l'implémentation ci-dessus de la fonction max toute seule n'assure pas la sureté de l'algorithme de la boulangerie?
 ```
-P1 P2 P3 
+P1 P2 P3
 	- Timestamp[2] = timestamp[3]=1
 	- P2 et SC (phase 3)
-	- P3 attend entre SC (Phase 2) 
+	- P3 attend entre SC (Phase 2)
 	- P1 exécute la Phase 1 jusque la ligne 4 de fonction max k=2
 	- P2 sort SC -> timestamp[2] = 0 (phrase 4)
-	- P3 rentre en SC 
+	- P3 rentre en SC
 	- P1 finit phase 1 / ligne 5 / timestamp[1]=1
 	- P1 phase 2 (compare timestamp[1] et timestamp[3] =? Entre en SC
 ```
@@ -102,7 +102,7 @@ Deux processus peuvent avoir la même valeur du timestamp.
 ## 1.3 Corrigez l'algorithme
 ```
 max () {
-    int MAX=0; 
+    int MAX=0;
     int TEMP=0;
     for j=1 to N {
         TEMP=timestamp[j];
@@ -126,14 +126,14 @@ K reprend la main - son ts[k] avec le max =1, il arrive en ph2, ts[k]=ts[i], et 
 1.6(1.7/2017, I guess) Donnez le code d'un tel algorithme
 ```
 Read-modify-write
-        register int ticket = 0; 
+        register int ticket = 0;
         register int valid = 0;
         int ticket_i
 inc(register r) {
         r +=1
 }
 
-Enter SC: 
+Enter SC:
         ticket i = read-modify-write(ticket, int);
         while (ticket_i != valid);
 Exit SC:
@@ -190,4 +190,33 @@ Proc_j: EntrySC
 Proc_j: ExitSC
 	ticket = 2
 	valid = [0 0 1 0]
+```
+
+
+
+  **2**
+
+  |Step| Safe|Regular|Regular|
+  |---|---|---|---|
+  |P0write|(R',0)|(R',1)|(R',0)|
+  |R|0|0|0|
+  |P1read|R'{0,1}|R{0,1}|R{0}|
+
+```
+  boo WRSW safe register R'= 0;
+  boo previous = 0;
+    write (R,val) {/* P0 */
+      if(previous != val){
+        R'=val;
+        previous = val;
+      }
+      return OK;
+    }
+```
+
+```
+bool Read(R){
+    val = R';
+    return(val);
+}
 ```
