@@ -23,27 +23,26 @@ N-processes. Uses two shared variables, _flag[2]_ and _turn_. Starvation-free.
 - _flag_ at 1 indicates that the process wants to enter the CS
 - _turn_ holds the id of the process whose turn it is 
 #### Code
-```
-	c
-	// Init
-	choosing[1..n] = 0;
-	timestamp[1..n] = 0;
+```c
+// Init
+choosing[1..n] = 0;
+timestamp[1..n] = 0;
 
-	// Shared variables
-	bool boosing[n];
-	int timestamp[n];
+// Shared variables
+bool boosing[n];
+int timestamp[n];
 
-	// Entry CS Code
-	choosing[i] = 1;
-	timestamp[i] = 1 + max(timestamp);
-	choosing[i] = 0;
-	for (j = 1 to n) {
-	    await(choosing[j]=0);
-	    await(timestamp[j] == 0) or (timestamp[i] < timestamp[j]);
+// Entry CS Code
+choosing[i] = 1;
+timestamp[i] = 1 + max(timestamp);
+choosing[i] = 0;
+for (j = 1 to n) {
+    await(choosing[j]=0);
+    await(timestamp[j] == 0) or (timestamp[i] < timestamp[j]);
 
-	// Exit CS Code
-	timestamp[i]=0
-	}
+// Exit CS Code
+timestamp[i]=0
+}
 ```
 
 ## Linearizibility
@@ -78,13 +77,70 @@ It is a _safe_ register and:
 is _regular_ and 
 - _read_ and _write_ that overlap are _linearizable_. There exists an equivalent totally ordered sequentilal execution of them
 
-<<<<<<< HEAD
-# TODO
-List
-- [ ] Add images for safe, regular and atomic registers from cs
-- [ ] Compare linearazability and sequentialy
-=======
 # TD
+## 1.1 Est-ce que la variable timestamp est bornée? Justifiez
+Non borne. Si les processus reviennent on est pas oblige de retourner a 0
+
+Deux processus I et j peuvent avoir le timestamp: timestamp[i]=timestamp[j]. En se basant sur le code de la fonction max ci dessus expliquez comment cette égalité peut arriver. Est-t-elle un problème? Justifier.
+C'est pas atomique, on peut se retrouver dans la même instruction.
+Entre SC n'est pas protégée contre plusieurs accès concurrents alors entre 2 instructions on se retrouve avec 2 processus -> même timestamp à la fin / non c'est pas un problème car L6 comparaison entre les indices
+
+## 1.2 En donnant un scenario d'exécution, expliquez pourquoi l'implémentation ci-dessus de la fonction max toute seule n'assure pas la sureté de l'algorithme de la boulangerie?
+```
+P1 P2 P3 
+	- Timestamp[2] = timestamp[3]=1
+	- P2 et SC (phase 3)
+	- P3 attend entre SC (Phase 2) 
+	- P1 exécute la Phase 1 jusque la ligne 4 de fonction max k=2
+	- P2 sort SC -> timestamp[2] = 0 (phrase 4)
+	- P3 rentre en SC 
+	- P1 finit phase 1 / ligne 5 / timestamp[1]=1
+	- P1 phase 2 (compare timestamp[1] et timestamp[3] =? Entre en SC
+```
+Deux processus peuvent avoir la même valeur du timestamp.
+
+## 1.3 Corrigez l'algorithme
+```
+max () {
+    int MAX=0; 
+    int TEMP=0;
+    for j=1 to N {
+        TEMP=timestamp[j];
+        if (MAX < TEMP)
+            MAX=TEMP;
+        }
+    timestamp[i] = 1+MAX;
+}
+```
+## 1.4 Est-ce que les phrases sont-elles vraies? Justifiez votre réponse.
+1 Vraie  
+2 Non, ts[i]=ts[k] avec i<k
+
+## 1.5 Pourquoi l'algorithme de la boulangerie a-t-il besoin du tableau choosing? Quel problème entrainerait l'élimination de la ligne 5 (boucle d'attente sur la variable choosing de l'algorithme)?
+Pour des raisons de sureté attendre le choix du TS après le comp. C'est une sorte de section critique, barrière en C, bla.  
+i exécute Ph1 sort avec ts=1  
+K vient de rentrer en ph1, donc ts[k]=0  
+i va en ph2 et ph3 donc en SC  
+K reprend la main - son ts[k] avec le max =1, il arrive en ph2, ts[k]=ts[i], et k<i donc aussi SC.
+
+1.6(1.7/2017, I guess) Donnez le code d'un tel algorithme
+```
+Read-modify-write
+        register int ticket = 0; 
+        register int valid = 0;
+        int ticket_i
+inc(register r) {
+        r +=1
+}
+
+Enter SC: 
+        ticket i = read-modify-write(ticket, int);
+        while (ticket_i != valid);
+Exit SC:
+        read-modify-write(valid, int)
+```
+
+
 
 ## Exercice 1.7
 ```
@@ -135,4 +191,3 @@ Proc_j: ExitSC
 	ticket = 2
 	valid = [0 0 1 0]
 ```
->>>>>>> origin/master
