@@ -194,7 +194,7 @@ Proc_j: ExitSC
 
 
 
-  **2**
+## Exercice 2
 
   |Step| Safe|Regular|Regular|
   |---|---|---|---|
@@ -220,3 +220,19 @@ bool Read(R){
     return(val);
 }
 ```
+### 2.1
+Quel modele de coherence?  
+// TODO: Add image
+Pas de overlap entre `p2.write(x,3)` et `p3.read(x)`
+
+- pas strict  
+// TODO: Why?
+- sequentiel oui, c'est possible de trouver une sequence qui est valable  
+Sequence possible: `p2.write(x, 1), p1.read(x)=1, p1.write(y,2), p3.write(y,4), p2.read(x)=1, p1.read(y)=4, p2.write(x, 3)`
+
+### 2.2 Writes causally related
+`write(x, 1) -> write(x, 3)`  
+`write(x, 1) -> write(y, 2)`  
+`write(x, 3) -> write(y, 4)`  
+Par transitivite:  
+`write(x, 1) -> write(y, 4)`
