@@ -1,4 +1,4 @@
-# Surete et concurrence
+# Locks
 
 ## Algo Mellor-Crumley & Scott (MCS Lock)
 
@@ -30,7 +30,7 @@ Stuffs:
 
 - _P_: Pre-conditions
 - _R_: Relay : Ce que les autres fond pendant mon execution
-- _G_: Guarantee
+- _G_: Guarante that I offer
 - _Q_: Post contitions
 
 ## TAS, getAndSet
@@ -99,3 +99,32 @@ TTAS-unlock(L) {
     L.state = free
 }
 ```
+
+## Coarse grain locking
+
+`synchronized()` all the things!
+
+## Fine-grained locking
+
+Lock smaller bits of data, not the whole list
+
+## Hand-over-hand lock coupling
+
+Though we again have a basic concurrent linked list, once again we are in a situation where it does not scale particularly well. One technique that researchers have explored to enable more concurrency within a list is something called hand-over-hand locking (a.k.a. lock coupling).
+
+The idea is pretty simple. Instead of having a single lock for the entire list, you instead add a lock per node of the list. When traversing the list, the code first grabs the next node’s lock and then releases the currentnode’s lock (which inspires the name hand-over-hand).
+
+### Conclusions
+
+- No deadlock
+- No starvation
+- Linearisation points:
+  - `add` success : at `current` lock
+  - `add` fail : at `pred` lock
+  - `remove` success : at `pred` lock
+  - `remove` fail : at `current` lock
+
+## Ressources
+
+- [Threads locks usage [pdf]](http://pages.cs.wisc.edu/~remzi/OSTEP/threads-locks-usage.pdf)
+- [Techniques for highly concurrent objects [pdf]](http://courses.csail.mit.edu/6.852/08/lectures/Lecture21.pdf)
