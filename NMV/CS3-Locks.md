@@ -121,10 +121,43 @@ The idea is pretty simple. Instead of having a single lock for the entire list, 
 - Linearisation points:
   - `add` success : at `current` lock
   - `add` fail : at `pred` lock
-  - `remove` success : at `pred` lock
+  - `remove` success : at `pred` lock   
   - `remove` fail : at `current` lock
+
+## Optimistic locking
+
+ Search down list without locking
+
+- Find and lock appropriate nodes
+- Verify that nodes are still adjacent and in list (validation)
+  - we can do this by traversing list again (provided that nodes are not removed from list while they are locked)
+- Better than hand-over-hand if
+  - traversing twice without locking is cheaper than once with locking
+    - traversal is wait-free! (we'll come back to this)
+  - validation typically succeeds
+
+## Lazy Locking
+
+### Idea: Use CAS to change next pointer
+- make sure next pointer hasn't changed since you read it
+  - assumes nodes aren't reused
+- possible because operations only change one pointer
+- but still nontrivial
+
+### Idea: Add “mark” to a node
+to indicate whether its key been removed from the set.
+
+- set mark before removing node from list
+  - thus, if mark is not set, node is in the list
+- setting the mark removes key from the set
+  - it is the serialization point of a successful remove operation
+- don't change next pointer of a marked node
+  - mark and next pointer must be in the same word
+- “steal” a low-order bit from pointers
+- Java provides special class: AtomicMarkableReference
 
 ## Ressources
 
-- [Threads locks usage [pdf]](http://pages.cs.wisc.edu/~remzi/OSTEP/threads-locks-usage.pdf)
-- [Techniques for highly concurrent objects [pdf]](http://courses.csail.mit.edu/6.852/08/lectures/Lecture21.pdf)
+- [[pdf] Threads locks usage](http://pages.cs.wisc.edu/~remzi/OSTEP/threads-locks-usage.pdf)
+- [[pdf] Techniques for highly concurrent objects, part1](http://courses.csail.mit.edu/6.852/08/lectures/Lecture21.pdf)
+- [[pdf] Techniques for highly concurrent objects, part2](http://courses.csail.mit.edu/6.852/08/lectures/Lecture22.pdf)
