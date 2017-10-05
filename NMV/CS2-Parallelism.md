@@ -1,4 +1,5 @@
 # Concurrency is hard
+
 - [Concurrency is hard](#concurrency-is-hard)
     - [L'accident du Therac-25](#laccident-du-therac-25)
     - [Ariane 501](#ariane-501)
@@ -32,7 +33,7 @@
     - [Architectures](#architectures)
     - [MIMD - Multiple Instruction Multiple Data](#mimd---multiple-instruction-multiple-data)
         - [Shared bus](#shared-bus)
-        
+
 ## L'accident du Therac-25
 
 1985-87 Machine therapie a rayonnement
@@ -299,6 +300,7 @@ Logique qui permet de raisonner sur les programmes sequentielles.
   ![para-hoare-seq](./images/para-hoare-seq.png)
 
 - Skip (do nothing)
+
 `{P} SKIP {P}`
 
 - Variable assignment: `X:=0`
