@@ -2,12 +2,59 @@
 
 ## Algo Mellor-Crumley & Scott (MCS Lock)
 
+### Why? 
+Regular, TAS based locking does not guarantee FIFO order, so a process can find itself waiting long for a lock, despite being the first to ask for it. TAS needs to be executed atomically, this makes it a very heavy-weight instruction. 
+
+Lamport's bakery solves the FIFO problem, but still spins on the same variable, the `current_ticket_number`. Why is this a problem? Well, think of it from a cache coherency perspective. Each processor is spinning, constantly reading the now_serving variable. Finally, the processor holding the lock releases and increments now_serving. This invalidates the cache line for all other processors, causing each of them to go across the interconnect and retrieve the new value. If each request for the new cache line is serviced in serial by the directory holding the cache line, then the **time to retrieve the new value is linear in the number of waiting processors.**
+
+The linear acquisition time can be improved, and this is where MCS comes in. Each process spins on local variable, not one shared with other processes. 
+
 - FIFO order
 - Spin on local memory only
 - Small, constant-size overhead
 - Explicit queue
 
-_**Unifnished**_
+### MCS Code
+
+```c
+mcs_node{
+      mcs_node next;
+      int is_locked;
+}
+
+mcs_lock{ 
+      mcs_node queue;
+}
+
+function Lock(mcs_lock lock, mcs_node my_node){
+      my_node.next = NULL;
+      mcs_node predecessor = fetch_and_store(lock.queue, my_node);
+      //if its null, we now own the lock and can leave, else....
+      if (predecessor != NULL){
+          my_node.is_locked = true;
+          //when the predecessor unlocks, it will give us the lock
+          predecessor.next = my_node; 
+          while(my_node.is_locked){}
+}
+
+function UnLock(mcs_lock lock, mcs_node my_node){
+      //is there anyone to give the lock to?
+      if (my_node.next == NULL){
+            //need to make sure there wasn't a race here
+            if (compare_and_swap(lock.queue, my_node, NULL)){
+                 return;
+            }
+            else{
+                 //someone has executed fetch_and_store but not set our next field
+                 while(my_node.next==NULL){}
+           } 
+      }
+     //if we made it here, there is someone waiting, so lets wake them up
+     my_node.next.is_locked=false;
+}
+```
+
+
 
 ## Raisonnement Rely-Guarantee
 
