@@ -17,10 +17,10 @@ The linear acquisition time can be improved, and this is where MCS comes in. Eac
 ### MCS Code
 
 ```c
-mcs_node{
+typedef struct mcs_node{
       mcs_node next;
       int is_locked;
-}
+} mcs_node;
 
 mcs_lock{ 
       mcs_node queue;
@@ -34,9 +34,10 @@ function Lock(mcs_lock lock, mcs_node my_node){
           my_node.is_locked = true;
           //when the predecessor unlocks, it will give us the lock
           predecessor.next = my_node; 
-          while(my_node.is_locked){}
+          while(my_node.is_locked){
+            // Waiting for lock
+          }
 }
-
 function UnLock(mcs_lock lock, mcs_node my_node){
       //is there anyone to give the lock to?
       if (my_node.next == NULL){
@@ -46,7 +47,9 @@ function UnLock(mcs_lock lock, mcs_node my_node){
             }
             else{
                  //someone has executed fetch_and_store but not set our next field
-                 while(my_node.next==NULL){}
+                 while(my_node.next==NULL){
+                   // Let the other process catch up, set itself as next
+                 }
            } 
       }
      //if we made it here, there is someone waiting, so lets wake them up
@@ -54,7 +57,9 @@ function UnLock(mcs_lock lock, mcs_node my_node){
 }
 ```
 
+Each process is represented by `mcs_node` in the queue. When attempting to acquire lock, if it's busy, the node is added at the end of the queue, and spin on `my_node.is_locked` (locally). `fetch_and_store(lock.queue, my_node)` atomically places our node at the end of the queue. `lock.queue` becomes the precedessor of `my_node`. The process then busy-waits for the predecessor to finish and wake it up.
 
+To unlock, we need to ensure that no other process had performed `fetch_and_store(lock.queue, another_node)`, but didn't yet set `mynode.next=another_node`.
 
 ## Raisonnement Rely-Guarantee
 
@@ -63,7 +68,8 @@ function UnLock(mcs_lock lock, mcs_node my_node){
 - Rely -> interference que mon processus accepte de la part des autres
 - Guarantee = ce que mon proc promet aux autres
 
-Pour chaque proc: `[Pi, Ri] Ci [Gi, Qi]
+Pour chaque proc: `[Pi, Ri] Ci [Gi, Qi]`
+
 Hoare + parallelisme : non interference
 
 - Hypotheses (proc i)
