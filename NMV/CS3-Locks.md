@@ -1,13 +1,32 @@
 # Locks
 
+- [Locks](#locks)
+    - [Algo Mellor-Crumley & Scott (MCS Lock)](#algo-mellor-crumley-scott-mcs-lock)
+        - [Why](#why)
+        - [MCS Code](#mcs-code)
+    - [Raisonnement Rely-Guarantee](#raisonnement-rely-guarantee)
+    - [TAS, getAndSet](#tas-getandset)
+    - [Exclussion mutuelle (Lock)](#exclussion-mutuelle-lock)
+    - [TTAS Lock](#ttas-lock)
+    - [Coarse grain locking](#coarse-grain-locking)
+    - [Fine-grained locking](#fine-grained-locking)
+    - [Hand-over-hand lock coupling](#hand-over-hand-lock-coupling)
+        - [Conclusions](#conclusions)
+    - [Optimistic locking](#optimistic-locking)
+    - [Lazy Locking](#lazy-locking)
+        - [Idea: Use CAS to change next pointer](#idea-use-cas-to-change-next-pointer)
+        - [Idea: Add “mark” to a node](#idea-add-%E2%80%9Cmark%E2%80%9D-to-a-node)
+    - [Ressources](#ressources)
+
 ## Algo Mellor-Crumley & Scott (MCS Lock)
 
-### Why? 
-Regular, TAS based locking does not guarantee FIFO order, so a process can find itself waiting long for a lock, despite being the first to ask for it. TAS needs to be executed atomically, this makes it a very heavy-weight instruction. 
+### Why
+
+Regular, TAS based locking does not guarantee FIFO order, so a process can find itself waiting long for a lock, despite being the first to ask for it. TAS needs to be executed atomically, this makes it a very heavy-weight instruction.
 
 Lamport's bakery solves the FIFO problem, but still spins on the same variable, the `current_ticket_number`. Why is this a problem? Well, think of it from a cache coherency perspective. Each processor is spinning, constantly reading the now_serving variable. Finally, the processor holding the lock releases and increments now_serving. This invalidates the cache line for all other processors, causing each of them to go across the interconnect and retrieve the new value. If each request for the new cache line is serviced in serial by the directory holding the cache line, then the **time to retrieve the new value is linear in the number of waiting processors.**
 
-The linear acquisition time can be improved, and this is where MCS comes in. Each process spins on local variable, not one shared with other processes. 
+The linear acquisition time can be improved, and this is where MCS comes in. Each process spins on local variable, not one shared with other processes.
 
 - FIFO order
 - Spin on local memory only
@@ -22,7 +41,7 @@ typedef struct mcs_node{
       int is_locked;
 } mcs_node;
 
-mcs_lock{ 
+mcs_lock{
       mcs_node queue;
 }
 
@@ -33,7 +52,7 @@ function Lock(mcs_lock lock, mcs_node my_node){
       if (predecessor != NULL){
           my_node.is_locked = true;
           //when the predecessor unlocks, it will give us the lock
-          predecessor.next = my_node; 
+          predecessor.next = my_node;
           while(my_node.is_locked){
             // Waiting for lock
           }
@@ -50,7 +69,7 @@ function UnLock(mcs_lock lock, mcs_node my_node){
                  while(my_node.next==NULL){
                    // Let the other process catch up, set itself as next
                  }
-           } 
+           }
       }
      //if we made it here, there is someone waiting, so lets wake them up
      my_node.next.is_locked=false;
@@ -174,7 +193,7 @@ The idea is pretty simple. Instead of having a single lock for the entire list, 
 - Linearisation points:
   - `add` success : at `current` lock
   - `add` fail : at `pred` lock
-  - `remove` success : at `pred` lock   
+  - `remove` success : at `pred` lock
   - `remove` fail : at `current` lock
 
 ## Optimistic locking
@@ -192,12 +211,14 @@ The idea is pretty simple. Instead of having a single lock for the entire list, 
 ## Lazy Locking
 
 ### Idea: Use CAS to change next pointer
+
 - make sure next pointer hasn't changed since you read it
   - assumes nodes aren't reused
 - possible because operations only change one pointer
 - but still nontrivial
 
 ### Idea: Add “mark” to a node
+
 to indicate whether its key been removed from the set.
 
 - set mark before removing node from list
