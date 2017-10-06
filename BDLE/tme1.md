@@ -219,3 +219,29 @@ __Répondre aux questions a2) au lieu de a1), puis b)__
 ### a1) (facultatif) Pour chaque mois, quel est le prix moyen des commandes du dernier trimestre ?
 ### a2) Pour chaque jour, donner le prix moyen des commandes effectuées les 90 jours précédents. La moyenne est calculée sur l'ensemble des commandes enregistrées pendant les 90 jours précédents.
 ### b) Pour chaque jour, quel est le chiffre d'affaire des 30 derniers jours ?
+
+# Cube
+
+## Operations
+
+### Structure
+
+- rotate (pivot)
+- switch
+- split
+- nest/unnest
+- push/pull
+- slice
+
+### Content
+
+- dice (sélection)
+- roll-up (grain supérieur)
+- drill-down (grain inférieur)
+
+### Multi-cubes
+
+- jointure
+- ops ensemblistes (union, intersection, difference)
+
+##
