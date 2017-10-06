@@ -21,11 +21,15 @@
         - [a2) Pour chaque jour, donner le prix moyen des commandes effectuées les 90 jours précédents. La moyenne est calculée sur l'ensemble des commandes enregistrées pendant les 90 jours précédents](#a2-pour-chaque-jour-donner-le-prix-moyen-des-commandes-effectu%C3%A9es-les-90-jours-pr%C3%A9c%C3%A9dents-la-moyenne-est-calcul%C3%A9e-sur-lensemble-des-commandes-enregistr%C3%A9es-pendant-les-90-jours-pr%C3%A9c%C3%A9dents)
         - [b) Pour chaque jour, quel est le chiffre d'affaire des 30 derniers jours ?](#b-pour-chaque-jour-quel-est-le-chiffre-daffaire-des-30-derniers-jours)
 - [Cube](#cube)
+    - [Rollup](#rollup)
     - [Question 1 : Opérations algébriques](#question-1-op%C3%A9rations-alg%C3%A9briques)
         - [a) Quelles sont, d'après le cours, les opérations à appliquer sur C1 pour obtenir C2 ? Donner l'ordre dans lequel les opérations sont appliquées](#a-quelles-sont-dapr%C3%A8s-le-cours-les-op%C3%A9rations-%C3%A0-appliquer-sur-c1-pour-obtenir-c2-donner-lordre-dans-lequel-les-op%C3%A9rations-sont-appliqu%C3%A9es)
         - [b) Donner la requête SQL calculant toute les cellules de C2 (264 cellules)](#b-donner-la-requ%C3%AAte-sql-calculant-toute-les-cellules-de-c2-264-cellules)
+    - [Question 2 : Agrégation sur les niveaux d'une dimension](#question-2-agr%C3%A9gation-sur-les-niveaux-dune-dimension)
+        - [a) T2R: Ecrire T1 en utilisant le mot-clé ROLLUP. Voir le résultat de T2R](#a-t2r-ecrire-t1-en-utilisant-le-mot-cl%C3%A9-rollup-voir-le-r%C3%A9sultat-de-t2r)
+        - [b) T2U: Ecrire T1 sans utiliser rollup mais UNION](#b-t2u-ecrire-t1-sans-utiliser-rollup-mais-union)
 
-# Requêtes décisionnelles avec TPC-H 
+# Requêtes décisionnelles avec TPC-H
 
 ## R1 Résumé des prix
 Quels sont les articles commandés, livrés avant la date d (incluse), regroupés selon leur état d'expédition et de réception ? Le résultat de la requête contient le nombre d'articles, le prix total HT (avant et après la réduction) et TTC, la quantité moyenne, le prix moyen, la réduction moyenne et le nombre le lignes de commandes.
@@ -65,22 +69,22 @@ where
 
 ## R3: Commandes à expédier en priorité
 Pour un type de marché S, quelles sont les commandes, non encore expédiées à la date d, les plus importantes en terme de montant restant à encaisser (i.e., la somme du prix HT, après réduction, des articles non expédiés de la commande) ? Trier le résultat par ordre décroissant de prix.
-```sql 
-select o_totalprice 
+```sql
+select o_totalprice
 from lineitem, orders
 where l_linestatus='0'
-  and o_oderdate <= '01-01-1993' 
+  and o_oderdate <= '01-01-1993'
   and l_orderkey=o_orderkey
 order by o_totalprice;
 ```
 
-# Requêtes analytiques 
+# Requêtes analytiques
 
 ## A1: Le top 10 des clients ayant dépensé le plus (a1.sql ou a1.txt).
 ### Afficher la liste des clients avec le montant total de leurs commandes. Pour chaque client, donner son n° et le montant total de ses commandes. Trier le résultat par ordre décroissant du montant.
 ```sql
-select 
-  c_custkey, 
+select
+  c_custkey,
   sum(o_totalprice) as montant_total,
   rank() over (order by sum(o_totalprice) DESC) as rang
 from Customer, Orders
@@ -90,25 +94,25 @@ group by c_custkey;
 
 
 ### Afficher seulement les 10 premiers clients.
-Ajouter une contition de selection sur l'attribut implicite nomme `rownum`: 
+Ajouter une contition de selection sur l'attribut implicite nomme `rownum`:
 `with T as (req 1) select * from T where rownum <= N`
-```sql 
+```sql
 with Req1 as (
   select
-    c_custkey, 
+    c_custkey,
     sum(o_totalprice) as montant_total,
     rank() over (order by sum(o_totalprice) DESC) as rang
   from Customer, Orders
   where c_custkey = o_custkey
   group by c_custkey
   )
-select * 
-from Req1 
+select *
+from Req1
 where rownum <=10
 ```
 
 ### Compléter la requête précédente pour afficher le rang de chaque client. Voir a1-res.
-```sql 
+```sql
 --a1-res
  C_CUSTKEY MONTANT_TOTAL       RANG
 ---------- ------------- ----------
@@ -129,18 +133,18 @@ Formatting columns : `column name format A20`
 ### Afficher la liste des pays, référencés dans Nation, avec leur nombre de clients. Donner le n° du pays, son nom et le nb de clients. Classer le résultat par ordre décroissant du nombre de clients. Y a-t-il des pays ex-aequo ?
 ```sql
 with r2 as (
-  select 
-    n_nationkey as cle, 
-    n_name, 
+  select
+    n_nationkey as cle,
+    n_name,
     count(c_nationkey) as nb_client
     dense_rank() over( order by count(c_nationkey) DESC) as rang
-  from 
+  from
     Nation, Customer
   where c_nationkey = n_nationkey
   group by n_nationkey, n_name
 )
-select * 
-from r2 
+select *
+from r2
 where rownum <= 10
 ```
 
@@ -149,7 +153,7 @@ where rownum <= 10
 `rank` valeurs skip - 1, 1, 3, 3, 3, 6 etc
 
 ```sql
-A3: 
+A3:
 
   TOP 5 : les pays de rang <= à 5
 
@@ -170,30 +174,30 @@ Au lieu de faire un `rang` on fait un `order by`
 
 ## A4: Le top 20% des pays avec le plus grand nombre de clients.
 
-### Afficher seulement les pays (référencés dans Nation) classés parmi les 20% meilleurs. Le résultat a4-res est-il correct? Justifier. 
+### Afficher seulement les pays (référencés dans Nation) classés parmi les 20% meilleurs. Le résultat a4-res est-il correct? Justifier.
 
-Fixer le format d'affichage du rang avec la commande:  
-  `column rang_pourcent format 9.99`  
-La formule calculant le rang relatif (entre 0 et 1 inclus) du tuple t parmi N tuples du résultat est :  
+Fixer le format d'affichage du rang avec la commande:
+  `column rang_pourcent format 9.99`
+La formule calculant le rang relatif (entre 0 et 1 inclus) du tuple t parmi N tuples du résultat est :
 `rang_relatif(t) = (rang(t) - 1) / ( N - 1)`
 
-```sql 
+```sql
 with r3 as (
-  select 
-    n_nationkey as cle, 
-    n_name as name, 
-    count(c_nationkey) as nb_client, 
+  select
+    n_nationkey as cle,
+    n_name as name,
+    count(c_nationkey) as nb_client,
     percent_rank() over(order by count(c_natiokey) desc) as rang_pourcent
-  from 
-    Nation, 
-    Customer 
-  where 
+  from
+    Nation,
+    Customer
+  where
     c_nationkey = n_nationkey
-  group by 
+  group by
     n_nationkey, n_name
 )
-select * 
-from r3 
+select *
+from r3
 where rang_pourcent <= 0.2
 ```
 
@@ -201,7 +205,7 @@ where rang_pourcent <= 0.2
 --- a4
 A4: top 20% des pays
 
-Les pays avec le plus grand nombre de clients. 
+Les pays avec le plus grand nombre de clients.
 Afficher seulement les pays classés parmi les 20% meilleurs.
 
 N_NATIONKEY N_NAME     NB_DE_CLIENTS RANG_POURCENT
@@ -226,9 +230,9 @@ Pour réduire le résultat, on ne veut afficher que les produits dont la quantit
 
 ```sql
 with r5 as (
-  select 
-    p_name as produit, 
-    n_name as nation, 
+  select
+    p_name as produit,
+    n_name as nation,
     sum(l_quantity) as quantite
     rank() over(partition by n_name order by sum(l_quantity) DESC) as rang
   from
@@ -259,7 +263,7 @@ where quant > 180 and rownum <= 10;
 
 ```sql
 with R5 as(
-  select 
+  select
     o_orderdate as dates,
     avg(sum(o_totalprice)) over (order by o_orderdate range between interval '90' day preceding and current row) as moyenne
   from
@@ -278,7 +282,7 @@ where rownum <= 62
 with R6 as (
   select
     o_orderdate as dates,
-    sum(o_totalprice) as total, 
+    sum(o_totalprice) as total,
     sum(sum(o_totalprice)) over (order by o_orderdate range between interval '30' day preceding and current row) as ChiffA
   from
     Orders
@@ -343,6 +347,12 @@ Extrait de C1
     2	  967 15/08/1996   30427,79
 
 ```
+
+## Rollup 
+
+`rollup(a, b, c)` 3 niveaux de la meme dimention. `a` niveau le plus haut, `c` niveau le plus bas.
+
+`cube(a, b, c)` -> 3 dimentions differentes
 
 ## Question 1 : Opérations algébriques
 
@@ -438,3 +448,10 @@ P_PARTKEY  O_CUSTKEY	   TOTAL
   197	 1392	   26901
   ```
 
+## Question 2 : Agrégation sur les niveaux d'une dimension
+
+On veut calculer, en une seule requête T2, tous les cubes obtenus à partir de C2 par agrégation sur la dimension client (ayant 3 niveaux). Le résultat de la requête contient toutes les données des cubes à tous les niveaux d'agrégation sur la dimension client.
+
+### a) T2R: Ecrire T1 en utilisant le mot-clé ROLLUP. Voir le résultat de T2R
+
+### b) T2U: Ecrire T1 sans utiliser rollup mais UNION
