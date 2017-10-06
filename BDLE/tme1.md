@@ -23,7 +23,7 @@
 - [Cube](#cube)
     - [Question 1 : Opérations algébriques](#question-1-op%C3%A9rations-alg%C3%A9briques)
         - [a) Quelles sont, d'après le cours, les opérations à appliquer sur C1 pour obtenir C2 ? Donner l'ordre dans lequel les opérations sont appliquées](#a-quelles-sont-dapr%C3%A8s-le-cours-les-op%C3%A9rations-%C3%A0-appliquer-sur-c1-pour-obtenir-c2-donner-lordre-dans-lequel-les-op%C3%A9rations-sont-appliqu%C3%A9es)
-        - [b) Donner la requête SQL calculant toute les cellules de C2 (264 cellules).Voir un extrait de C2](#b-donner-la-requ%C3%AAte-sql-calculant-toute-les-cellules-de-c2-264-cellulesvoir-un-extrait-de-c2)
+        - [b) Donner la requête SQL calculant toute les cellules de C2 (264 cellules)](#b-donner-la-requ%C3%AAte-sql-calculant-toute-les-cellules-de-c2-264-cellules)
 
 # Requêtes décisionnelles avec TPC-H 
 
@@ -292,6 +292,58 @@ where rownum <= 5
 
 # Cube
 
+```sql
+C1:
+Extrait de C1
+
+ P_PARTKEY  O_CUSTKEY JOUR	      TOTAL
+---------- ---------- ---------- ----------
+    1	   62 23/09/1995   52351,65
+    1	  196 24/06/1995   32454,76
+    1	  199 11/12/1994   80146,84
+    1	  379 11/02/1994      27254
+    1	  469 03/01/1993   15303,44
+    1	  470 04/04/1994   53071,69
+    1	  540 09/10/1994   47523,06
+    1	  587 25/12/1997   30942,36
+    1	  705 23/04/1994   47172,27
+    1	  749 08/06/1993    26018,4
+    1	  764 16/09/1992   46786,36
+    1	  849 17/07/1992   33168,87
+    1	  886 03/06/1994   48460,88
+    1	  907 11/02/1993   91130,65
+    1	  979 07/01/1993   90582,75
+    1	 1071 16/01/1992   28477,45
+    1	 1105 14/01/1993   54543,68
+    1	 1380 21/07/1998   11386,41
+    2	   90 10/09/1992    9940,44
+    2	  100 14/03/1994   57691,44
+    2	  105 25/07/1995   51337,84
+    2	  131 16/11/1997   36104,31
+    2	  205 13/01/1996   69651,05
+    2	  222 08/06/1998    35797,4
+    2	  294 24/01/1992   56502,18
+    2	  299 04/09/1997   46787,97
+    2	  379 19/02/1998   28363,35
+    2	  400 02/10/1997    7827,45
+    2	  401 13/11/1993   47675,04
+    2	  418 12/06/1992   62110,05
+    2	  472 01/07/1998    39872,2
+    2	  572 01/08/1998   76060,98
+    2	  575 13/07/1993   80029,42
+    2	  582 20/07/1993   23908,14
+    2	  672 26/05/1994    3635,56
+    2	  674 11/05/1996   71704,86
+    2	  739 21/03/1992   55823,46
+    2	  748 28/11/1997    31517,2
+    2	  759 24/07/1995   29035,84
+    2	  761 05/12/1994   11683,98
+    2	  870 15/07/1996    37025,7
+    2	  918 21/10/1995   27633,22
+    2	  967 15/08/1996   30427,79
+
+```
+
 ## Question 1 : Opérations algébriques
 
 On considère le cube C2 à deux dimensions obtenu à partir de C1 tel que :
@@ -302,9 +354,87 @@ Les valeurs des cellules de C2 représentent la somme des ventes quelle que soit
 
 ### a) Quelles sont, d'après le cours, les opérations à appliquer sur C1 pour obtenir C2 ? Donner l'ordre dans lequel les opérations sont appliquées
 
-- `roll up` type de produit en cuivre
-- `slice` vente effecute apres le 01-06-1998
-- projection aggregative conserve seulement les axes `produit` et `client`
+```sql
+- 0: initial
+    ^
+    | type produit
+    |
+    |
+    x-----------> nom client
+   /
+  / jour
+ /
+<
 
-### b) Donner la requête SQL calculant toute les cellules de C2 (264 cellules).Voir un extrait de C2
+
+- 1: `slice` sur la date, jour > 01-06-1998
+
+      ^
+      | type produit
+      |
+      |
+      x-----------> nom client
+     /
+-----------
+   / jour
+-----------
+ /
+<
+
+- 2: remonter dans la dimention produit -> `rollup` de nom de produit a type de produit
+
+- 3: `slice` sur la dimention produit type de produit `like '%COPPER'`
+
+       ^
+     -----------------
+       | type produit
+     ----------------
+       |
+       |
+       x-----------> nom client
+     /
+-----------
+   / jour
+-----------
+ /
+<
+
+- 4: enlever une dimention: projection aggregative sur produit, client
+```
+
+### b) Donner la requête SQL calculant toute les cellules de C2 (264 cellules)
+
+Voir un extrait de C2:
+
+```sql
+Extrait de C2
+
+P_PARTKEY  O_CUSTKEY	   TOTAL
+---------- ---------- ----------
+  1	 1380	11386,41
+  7	 1019	   30911
+  28	 1481	79794,82
+  29	 1383	 7932,12
+  36	 1068	16760,25
+  54	  193	 18167,5
+  60	 1274	 18387,6
+  60	 1473	 41349,7
+  77	  884	 37984,8
+  77	 1346	   46612
+  110	  656	40960,76
+  138	  301	17255,15
+  145	  614	 5555,58
+  145	 1425	 43936,2
+  160	   94	62924,91
+  162	  416	 68867,5
+  162	  973	36697,65
+  168	  571	 21905,4
+  168	  862	55356,07
+  170	  945	28861,92
+  171	  205	 33238,8
+  171	 1007	52035,84
+  192	 1097	11911,34
+  197	 1161	62996,34
+  197	 1392	   26901
+  ```
 
