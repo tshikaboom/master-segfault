@@ -1,5 +1,39 @@
 # Concurrency is hard
 
+- [Concurrency is hard](#concurrency-is-hard)
+    - [L'accident du Therac-25](#laccident-du-therac-25)
+    - [Ariane 501](#ariane-501)
+    - [Sequential Stack in a concurrent world](#sequential-stack-in-a-concurrent-world)
+    - [Solutions](#solutions)
+    - [CAS - Compare and Swap](#cas---compare-and-swap)
+        - [What does it do](#what-does-it-do)
+        - [Code](#code)
+        - [Example](#example)
+    - [TAS - Test and Set / Get and Set](#tas---test-and-set-get-and-set)
+    - [The ABA problem](#the-aba-problem)
+        - [ABA Example](#aba-example)
+        - [ELI5](#eli5)
+    - [Test and test and set](#test-and-test-and-set)
+    - [Exponential Backoff](#exponential-backoff)
+    - [Anderson Queue Lock](#anderson-queue-lock)
+        - [Idea](#idea)
+        - [Anderson ELI5](#anderson-eli5)
+    - [Hazard pointers - Michael's algorithm](#hazard-pointers---michaels-algorithm)
+        - [Michael's `pop()` and `push()`](#michaels-pop-and-push)
+    - [LL/SC - Load Link / Store Conditional](#llsc---load-link-store-conditional)
+    - [LL/SC Invariants](#llsc-invariants)
+    - [Logique de Hoare](#logique-de-hoare)
+    - [The Hoare triple](#the-hoare-triple)
+    - [Primitives](#primitives)
+        - [Hoare Example](#hoare-example)
+    - [Linearisability](#linearisability)
+    - [Java](#java)
+    - [TM - Transactional Memory - Software TM - Hardware TM](#tm---transactional-memory---software-tm---hardware-tm)
+    - [Peterson](#peterson)
+    - [Architectures](#architectures)
+    - [MIMD - Multiple Instruction Multiple Data](#mimd---multiple-instruction-multiple-data)
+        - [Shared bus](#shared-bus)
+
 ## L'accident du Therac-25
 
 1985-87 Machine therapie a rayonnement
@@ -266,6 +300,7 @@ Logique qui permet de raisonner sur les programmes sequentielles.
   ![para-hoare-seq](./images/para-hoare-seq.png)
 
 - Skip (do nothing)
+
 `{P} SKIP {P}`
 
 - Variable assignment: `X:=0`

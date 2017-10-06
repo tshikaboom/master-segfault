@@ -1,4 +1,5 @@
 # Requêtes décisionnelles avec TPC-H 
+
 ## R1 Résumé des prix
 Quels sont les articles commandés, livrés avant la date d (incluse), regroupés selon leur état d'expédition et de réception ? Le résultat de la requête contient le nombre d'articles, le prix total HT (avant et après la réduction) et TTC, la quantité moyenne, le prix moyen, la réduction moyenne et le nombre le lignes de commandes.
 ```sql
@@ -45,7 +46,8 @@ where l_linestatus='0'
   and l_orderkey=o_orderkey
 order by o_totalprice;
 ```
-# Requêtes décisionnelles avec TPC-H 
+
+# Requêtes analytiques 
 
 ## A1: Le top 10 des clients ayant dépensé le plus (a1.sql ou a1.txt).
 ### Afficher la liste des clients avec le montant total de leurs commandes. Pour chaque client, donner son n° et le montant total de ses commandes. Trier le résultat par ordre décroissant du montant.
@@ -167,6 +169,7 @@ select *
 from r3 
 where rang_pourcent <= 0.2
 ```
+
 ```sql
 --- a4
 A4: top 20% des pays
@@ -185,12 +188,13 @@ N_NATIONKEY N_NAME     NB_DE_CLIENTS RANG_POURCENT
 ```
 
 ### Pourquoi le dénominateur est-il `(N - 1)` au lieu de `N`?
-Les index commencent a 0?
 
+Les index commencent a 0?
 
 ## A5: Classement national des produits vendus en plus grande quantité.
 
-### Pour chaque pays (référencé dans Nation), donner le classement national des produits les plus achetés par des clients de ce pays. 
+### Pour chaque pays (référencé dans Nation), donner le classement national des produits les plus achetés par des clients de ce pays
+
 Pour réduire le résultat, on ne veut afficher que les produits dont la quantité achetée (pour un pays et un produit) est supérieure à 150. Afficher les attributs pays, produit, quantité_achetée et rang.
 
 ```sql
@@ -218,19 +222,19 @@ from r5
 where quant > 180 and rownum <= 10;
 ```
 
-
 ## A6: Fenêtre temporelle glissante
 
-__Répondre aux questions a2) au lieu de a1), puis b)__
+- __Répondre aux questions a2) au lieu de a1), puis b)__
 
 ### a1) (facultatif) Pour chaque mois, quel est le prix moyen des commandes du dernier trimestre ?
-### a2) Pour chaque jour, donner le prix moyen des commandes effectuées les 90 jours précédents. La moyenne est calculée sur l'ensemble des commandes enregistrées pendant les 90 jours précédents.
+
+### a2) Pour chaque jour, donner le prix moyen des commandes effectuées les 90 jours précédents. La moyenne est calculée sur l'ensemble des commandes enregistrées pendant les 90 jours précédents
 
 ```sql
 with R5 as(
   select 
-    o_orderdate as dates, 
-    av(sum(o_totalprice)) over (order by o_orderdate range between interval '90' day preceding and current row) as moyen
+    o_orderdate as dates,
+    avg(sum(o_totalprice)) over (order by o_orderdate range between interval '90' day preceding and current row) as moyenne
   from
     Orders
   where
@@ -238,8 +242,42 @@ with R5 as(
   group by o_orderdate)
 select *
 from R5
-where 
+where rownum <= 62
 ```
 
 ### b) Pour chaque jour, quel est le chiffre d'affaire des 30 derniers jours ?
+
+```sql
+with R6 as (
+  select
+    o_orderdate as dates,
+    sum(o_totalprice) as total, 
+    sum(sum(o_totalprice)) over (order by o_orderdate range between interval '30' day preceding and current row) as ChiffA
+  from
+    Orders
+  where
+    o_orderdate >= '01-06-1998'
+  group by o_orderdate)
+select *
+from R6
+where rownum <= 5
+```
+
+# Cube
+
+## Question 1 : Opérations algébriques
+
+On considère le cube C2 à deux dimensions obtenu à partir de C1 tel que :
+
+On s'intéresse seulement aux ventes de produits en cuivre (dont le type se termine par COPPER : like '%COPPER') effectuées après le 1er juin 1998.
+On considère seulement le niveau type de la dimensions produit et le niveau nom de la dimension client.
+Les valeurs des cellules de C2 représentent la somme des ventes quelle que soit la date.
+
+### a) Quelles sont, d'après le cours, les opérations à appliquer sur C1 pour obtenir C2 ? Donner l'ordre dans lequel les opérations sont appliquées
+
+- `roll up` type de produit en cuivre
+- `slice` vente effecute apres le 01-06-1998
+- projection aggregative conserve seulement les axes `produit` et `client`
+
+### b) Donner la requête SQL calculant toute les cellules de C2 (264 cellules).Voir un extrait de C2
 
