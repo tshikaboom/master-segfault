@@ -22,6 +22,7 @@
         - [Completude (completness)](#completude-completness)
         - [Justesse (accuracy)](#justesse-accuracy)
         - [Detecteurs de defaillance non fiables [CHT96]](#detecteurs-de-defaillance-non-fiables-cht96)
+    - [Leader ultime Ω](#leader-ultime-%CF%89)
 
 # Why care about concensus
 - whether to commit a tx to a db 
@@ -42,6 +43,8 @@
 - `terminaison (termination)` tous les processus corrects decident finalement
 - `coherence (agreement)` deux processus corrects ne peuvent decider differemment 
 - `integrite (integrity)` un processus doit decider au plus une fois
+
+Consensuls resoluble avec ♦S. En effet ♦S est le plus faible detecteur pour resoudre le consensus (minimalite) avec une **majorite de processus corrects**.
 
 ## **Uniform** Consensus 
 - as above plus; 
@@ -181,6 +184,8 @@ Task2: when receive (q, suspects_q) from some q
     output_p <- (output_p U suspects_q) - {q}
 ```
 
+Keep querying the detector, 
+
 ### Justesse (accuracy)
 
 - `forte` aucun processus correct n'est suspecte 
@@ -202,7 +207,7 @@ Task2: when receive (q, suspects_q) from some q
 `Justesse (Accuracy)` : un processus correct ne doit pas etre considere comme defaillant
 
 
-| | Forte | Faible | Finalement force | Finalement faible | 
+| Justesse | Forte | Faible | Finalement force | Finalement faible | 
 |--|--|--|--|--|
 | Completude forte | P | S | ♦P | ♦S |
 | Completude faible | Q | W | ♦Q | ♦W | 
@@ -217,6 +222,17 @@ P ---> ♦ P
 v       v
 S ---> ♦ S
 ```
+
+## Leader ultime Ω
+`Ω` un detecteur de defaillances dont la sortie est un unique processus suppose etre correct 
+
+`q` est la sortie de `Ω` a l'instant `t` : `Ω` fait confiance a `q` a l'instant `t`
+
+`Ω` assure:   
+    un jourtous les processus corrects feront confiance au *meme* processus *correct*
+
+Ω et S sont equivalents
+
 
 omega -> ♦S
 omega returne leader
