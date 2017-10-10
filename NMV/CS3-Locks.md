@@ -59,14 +59,14 @@ function Lock(mcs_lock lock, mcs_node my_node){
 }
 function UnLock(mcs_lock lock, mcs_node my_node){
   //is there anyone to give the lock to?
-  if (my_node.next == NULL){
+  if (my_node.next == NULL) {
       //need to make sure there wasn't a race here
       if (compare_and_swap(lock.queue, my_node, NULL)){
             return;
       }
       else{
           //someone has executed fetch_and_store but not set our next field
-          while(my_node.next==NULL){
+          while(my_node.next==NULL) {
             // Let the other process catch up, set itself as next
           }
       }
@@ -142,7 +142,7 @@ G: MOD(L) // Only L Modified
 Q: L.owner = null
 ```
 
-Variable partagee _X_ progetee par verrou _L_. Plusieurs processus identiques || :
+Variable partagee _X_ progetee par verrou _L_. Plusieurs processus identiques paralleles :
 
 ```bash
 P: true
