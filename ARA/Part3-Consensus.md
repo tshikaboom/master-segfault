@@ -22,7 +22,18 @@
         - [Completude (completness)](#completude-completness)
         - [Justesse (accuracy)](#justesse-accuracy)
         - [Detecteurs de defaillance non fiables [CHT96]](#detecteurs-de-defaillance-non-fiables-cht96)
+        - [Hypotheses temporelles](#hypotheses-temporelles)
+            - [Pour ♦P](#pour-%E2%99%A6p)
+            - [Pour ♦S et Ω](#pour-%E2%99%A6s-et-%CF%89)
+            - [Implems asynchrones](#implems-asynchrones)
     - [Leader ultime Ω](#leader-ultime-%CF%89)
+    - [Detecteur ∑](#detecteur-%E2%88%91)
+    - [FD Minimum](#fd-minimum)
+    - [Architecture](#architecture)
+    - [Algo1 - Consensus avec P](#algo1---consensus-avec-p)
+    - [Algo2 - Consensus avec P](#algo2---consensus-avec-p)
+    - [Algo3 - Consensus avec ♦S](#algo3---consensus-avec-%E2%99%A6s)
+        - [How it works](#how-it-works)
 
 # Why care about concensus
 - whether to commit a tx to a db 
@@ -223,17 +234,115 @@ v       v
 S ---> ♦ S
 ```
 
+### Hypotheses temporelles
+
+Implementations reposant sur des temporisateurs : partiellement synchrones. 
+
+#### Pour ♦P
+(a terme, plus d'erreur)
+
+- Il existe un temps `GST` (Global Stabilization Time), ou il y a une brone inconnue sur les delais de transmission et de traitement des messages
+    - Permet d'implementer ♦P
+- Idee: A chaque erreur on augmente son temporisateur
+    - Il existe un moment (apres `GST`) ou on ne fera plus d'erreur (le temporisateur a atteint la borne inconnue)
+
+#### Pour ♦S et Ω
+(a terme plus d'erreur sur 1 processus)
+
+Hypothese reduite a un ensemble de canaux ultimement synchrones.
+
+`♦-timely link` est un canal ultimement synchrone
+`♦-j-source` au moins `j` liens sortant sont ultimement ponctuels
+
+Ω peut etre implemente si y a au moins une `♦-j-source` correcte (`j` etant nombre de defaillants)
+
+#### Implems asynchrones
+
+- Bases sur `query-response` (attendre un nombre fini de reponses `n-f`)
+- Connaissance a priori du nombre de procs defaillants `f`
+- Hypothese relative sur des canaux de communication (canaux plus rapides que d'autres)
+
 ## Leader ultime Ω
 `Ω` un detecteur de defaillances dont la sortie est un unique processus suppose etre correct 
 
 `q` est la sortie de `Ω` a l'instant `t` : `Ω` fait confiance a `q` a l'instant `t`
 
-`Ω` assure:   
-    un jourtous les processus corrects feront confiance au *meme* processus *correct*
+`Ω` assure:
+
+- un jour tous les processus corrects feront confiance au *meme* processus *correct*
 
 Ω et S sont equivalents
 
+♦s ==> Pi - leader <- I dunno what that is really.
 
-omega -> ♦S
-omega returne leader
-♦s ==> Pi - leader
+## Detecteur ∑
+
+Propose une liste de processus corrects
+
+- `Intersection` il y a toujours une intersection non vide dans les listes proposes 
+- `Completude ultime` ultimement, il n'y a pas de processus fautif dans les listes
+
+`(Ω, ∑)` le plus faible detecteur pour realiser le consensus avec `n-1` fautes
+
+## FD Minimum 
+
+| Problems | Consensus | k-set agreement | set agreement | Eventual Consistency | 
+| -- | -- | -- | -- | -- |
+|Shared memory | Ω [LH94] | k-anti-Ω [GK09] | anti-Ω [Z10] | None |
+|Message passing | (Ω, ∑) | None | L [DFGT08] | Ω [DKGPS15]
+
+## Architecture
+
+// TODO Slide 22
+
+## Algo1 - Consensus avec P
+
+- Fonde sur des rounds et un leader
+- Les procs executent des rounds de maniere incrementale
+- Dans chaque round:
+    - Le proc dont l'ID correspond au numero de la round est le leader 
+    - `id leader = id ronde % N`
+- Le leader choisit sa valeur courante, la decide et la diffuse a tous
+- Les non leader (`id node != id round %N`) attendent:
+    - la reception du message du leader pour choisir sa veleur
+    - la suspicion du leader
+- En `N` rounds tous les processus ont decide (tous ont ete leader)
+
+## Algo2 - Consensus avec P
+
+- `f` nombre max de fautes tolerees 
+- Chaque proc `P_i` maintient un vecteur `V_i` pour stocker les valeurs proposees
+- `f+1` rounds:
+    - Chaque proc `P_i` diffuse `V_i` de facon incrementale
+    - Attendre la reception des vecteurs de tous les processus non suspectes
+- Apres `f+1` rounds
+    - `P_i` choisit et decide la premiere valeur non vide de son vecteur 
+
+## Algo3 - Consensus avec ♦S
+
+- Algo du coordinateur tournant [CHT96]
+- `f < n/2` crashes 
+- Procs numerotes `1, 2, ..., n`
+- Execution de `rondes async`
+- Round `r`'s `coordinator = proc(r mod n) +1`
+- Coord `c`: 
+    - Impose sa velur `v`
+    - `v` est choisie si `c` n'est pas suspecte
+
+### How it works 
+
+- 4 phases par round 
+- `Phase1` : timestamp the current value with the last round's time, and sent it to coordinator
+- `Phase2` : Coord awaits majority of values
+    - `PropVal` = one val from the newest ones
+    - Broadcast `PropVal`
+- `Phase3` : For each correct proc
+    - Receive `PropVal` : send back ACK, update local value
+    - If suspecting coordinator: send `nack`
+- `Phase4` : 
+    - Coord receives majority of votes (either `ack` or `nack`), updates local value
+    - If majority `ack`
+        - Final value = local value + reliable broadcast value
+        - When receiving all the procs decide the received value
+    - If no majority
+        - New round
