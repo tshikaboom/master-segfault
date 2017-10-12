@@ -24,9 +24,9 @@
         - [Detecteurs de defaillance non fiables [CHT96]](#detecteurs-de-defaillance-non-fiables-cht96)
         - [Hypotheses temporelles](#hypotheses-temporelles)
             - [Pour ♦P](#pour-%E2%99%A6p)
+                - [Algo ♦P](#algo-%E2%99%A6p)
             - [Pour ♦S et Ω](#pour-%E2%99%A6s-et-%CF%89)
-            - [Implems asynchrones](#implems-asynchrones)
-    - [Leader ultime Ω](#leader-ultime-%CF%89)
+                    - [Algo Ω](#algo-%CF%89)
     - [Detecteur ∑](#detecteur-%E2%88%91)
     - [FD Minimum](#fd-minimum)
     - [Architecture](#architecture)
@@ -34,6 +34,7 @@
     - [Algo2 - Consensus avec P](#algo2---consensus-avec-p)
     - [Algo3 - Consensus avec ♦S](#algo3---consensus-avec-%E2%99%A6s)
         - [How it works](#how-it-works)
+- [Scaling Fault-Detectors](#scaling-fault-detectors)
 
 # Why care about concensus
 - whether to commit a tx to a db 
@@ -195,8 +196,6 @@ Task2: when receive (q, suspects_q) from some q
     output_p <- (output_p U suspects_q) - {q}
 ```
 
-Keep querying the detector, 
-
 ### Justesse (accuracy)
 
 - `forte` aucun processus correct n'est suspecte 
@@ -239,6 +238,7 @@ S ---> ♦ S
 Implementations reposant sur des temporisateurs : partiellement synchrones. 
 
 #### Pour ♦P
+`Bertier et al`
 (a terme, plus d'erreur)
 
 - Il existe un temps `GST` (Global Stabilization Time), ou il y a une brone inconnue sur les delais de transmission et de traitement des messages
@@ -246,34 +246,23 @@ Implementations reposant sur des temporisateurs : partiellement synchrones.
 - Idee: A chaque erreur on augmente son temporisateur
     - Il existe un moment (apres `GST`) ou on ne fera plus d'erreur (le temporisateur a atteint la borne inconnue)
 
+##### Algo ♦P
+
+![fd-diamond-p](./images/fd-diamond-p.png)
+
 #### Pour ♦S et Ω
 (a terme plus d'erreur sur 1 processus)
 
 Hypothese reduite a un ensemble de canaux ultimement synchrones.
 
-`♦-timely link` est un canal ultimement synchrone
+`♦-timely link` est un canal ultimement synchrone  
 `♦-j-source` au moins `j` liens sortant sont ultimement ponctuels
 
 Ω peut etre implemente si y a au moins une `♦-j-source` correcte (`j` etant nombre de defaillants)
 
-#### Implems asynchrones
+###### Algo Ω
 
-- Bases sur `query-response` (attendre un nombre fini de reponses `n-f`)
-- Connaissance a priori du nombre de procs defaillants `f`
-- Hypothese relative sur des canaux de communication (canaux plus rapides que d'autres)
-
-## Leader ultime Ω
-`Ω` un detecteur de defaillances dont la sortie est un unique processus suppose etre correct 
-
-`q` est la sortie de `Ω` a l'instant `t` : `Ω` fait confiance a `q` a l'instant `t`
-
-`Ω` assure:
-
-- un jour tous les processus corrects feront confiance au *meme* processus *correct*
-
-Ω et S sont equivalents
-
-♦s ==> Pi - leader <- I dunno what that is really.
+![fd-omega](./images/fd-omega.png)
 
 ## Detecteur ∑
 
@@ -293,7 +282,7 @@ Propose une liste de processus corrects
 
 ## Architecture
 
-// TODO Slide 22
+![fd-archi](./images/fd-archi.png)
 
 ## Algo1 - Consensus avec P
 
@@ -346,3 +335,5 @@ Propose une liste de processus corrects
         - When receiving all the procs decide the received value
     - If no majority
         - New round
+
+# Scaling Fault-Detectors
