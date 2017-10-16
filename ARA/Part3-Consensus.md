@@ -39,6 +39,7 @@
     - [FD](#fd)
     - [Reconnecting the ring](#reconnecting-the-ring)
     - [Broadcast algo - Hypercube](#broadcast-algo---hypercube)
+- [Ressources](#ressources)
 
 # Why care about concensus
 - whether to commit a tx to a db 
@@ -404,3 +405,8 @@ SC’16 – November, 2016
 - Completes if `f <= log(n)-1`, `f` being the number of falures, `n` the number of live processes
 
 ![fd-hypercube](./images/fd-cube.png)
+
+# Ressources 
+
+- [Yale FD resume](http://www.cs.yale.edu/homes/aspnes/pinewiki/FailureDetectors.html)
+- [Massive Yale Course on Distributed Systems Principles (430pages)](http://www.cs.yale.edu/homes/aspnes/classes/465/notes.pdf)
