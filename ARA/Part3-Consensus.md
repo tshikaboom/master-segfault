@@ -35,6 +35,10 @@
     - [Algo3 - Consensus avec ♦S](#algo3---consensus-avec-%E2%99%A6s)
         - [How it works](#how-it-works)
 - [Scaling Fault-Detectors](#scaling-fault-detectors)
+- [FD in HPC](#fd-in-hpc)
+    - [FD](#fd)
+    - [Reconnecting the ring](#reconnecting-the-ring)
+    - [Broadcast algo - Hypercube](#broadcast-algo---hypercube)
 
 # Why care about concensus
 - whether to commit a tx to a db 
@@ -337,3 +341,66 @@ Propose une liste de processus corrects
         - New round
 
 # Scaling Fault-Detectors
+
+- Ring - `WLL07-PDC`
+    - Every node sends a heartbeat to the successor
+    - Low messages overhead
+    - High detection time (ring information propagation)
+- Probabilistic approach - `GCG01-PODC`
+    - Each round, each node picks randomly a distant node to observe
+    - Assure une completude et justesse probabiliste
+    - Scales
+    - Difficulte pour dimmensionner les temporisateurs
+- Hierarchic - `BMS03-DSN`
+    - Cluster - Local detection group
+    - Proxy elected for each cluster
+    - A global group unites the proxies
+    - ![fd-hier](./images/fd-hier.png)
+- Hypercube - `BBGHRS16` (Supercomputing)
+
+# FD in HPC
+
+```
+George Bosilca [1]
+Aurélien Bouteiller [1]
+Amina Guermouche [1]
+Thomas Hérault [1]
+Yves Robert [1,2]
+Pierre Sens [3]
+Jack Dongarra [1,4]
+
+University Tennessee Knoxville - 1
+ENS Lyon, France - 2
+LIP6, Inria Paris, France - 3
+University of Manchester, UK - 4
+
+SC’16 – November, 2016
+```
+
+
+- Applications continue execution after crash of several nodes
+- Need rapid and global knowledge of group members
+- Main features
+    - Rapid failure detection 
+    - Global failure knowledge propagation
+    - Resilience mechanism should have minimal impact
+
+## FD 
+
+- Processes arranged as a ring
+- Periodic heartbeats from a node to its successor
+- Maintain ring of live nodes 
+    - Reconnect after a failure 
+    - Inform all processes
+
+## Reconnecting the ring
+
+![fd-ring-reco](./images/fd-ring-reconnect.png)
+
+## Broadcast algo - Hypercube
+
+- Hypercube Broadcast Algorithm - P. Ramanathan and Kang G. Shin, ’Reliable Broadcast Algorithm’, IEEE Trans. Computers, 1988
+- Disjoint paths to deliver multiple broadcast message copies
+- Completes if `f <= log(n)-1`, `f` being the number of falures, `n` the number of live processes
+
+![fd-hypercube](./images/fd-cube.png)
