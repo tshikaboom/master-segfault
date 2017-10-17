@@ -39,6 +39,7 @@
     - [FD](#fd)
     - [Reconnecting the ring](#reconnecting-the-ring)
     - [Broadcast algo - Hypercube](#broadcast-algo---hypercube)
+- [Ressources](#ressources)
 
 # Why care about concensus
 - whether to commit a tx to a db 
@@ -178,17 +179,24 @@ Dwork, Lynch, Stockmeier - 1998
 
 # Detecteurs des fautes
 
+Chandra and Toueg define eight classes of failure detectors, based on when they suspect faulty processes and non-faulty processes. Suspicion of faulty processes comes under the heading of completeness; of non-faulty processes, accuracy.
+
 ## Specs
 
 ### Completude (completness)
 
-- `forte` : A partir d'un moment tout processus defaillant est suspecte par `tous` les processus corrects 
+- `forte` : A partir d'un moment tout processus defaillant est suspecte par `tous` les processus corrects
+- `strong` : Every faulty process is eventually permanently suspected by every non-faulty process.
+
 - `faible` : a partir d'un moment tout processus defaillant est suspecte par `un` processus correct
+- `weak` : Every faulty process is eventually permanently suspected by some non-faulty process.
+
+There are two temporal logic operators embedded in these statements: "eventually permanently" means that there is some time t0 such that for all times t ≥ t0, the process is suspected. Note that completeness says nothing about suspecting non-faulty processes: a paranoid failure detector that permanently suspects everybody has strong completeness.
 
 Elles sont equivalentes - on peut construir une forte a partir d'une faible.
 
 1. La faible est incluse dans forte
-2. Construction de la forte from faible
+2. Construction de la forte a partir d'une faible
 
 ```
 Task1: repeat forever
@@ -206,6 +214,9 @@ Task2: when receive (q, suspects_q) from some q
 - `faible` il existe au moins un processus correct qui n'est jamais suspecte
 - `finalement forte` *il existe un instant a partir duquel* tout processus correct n'est plus suspecte par aucun processus correct 
 - `finalement faible` *il existe un instant a partir duquel* au moins un processus correct n'est suspecte par aucun processus correct
+
+Note that "strong" and "weak" mean different things for accuracy vs completeness: for accuracy, we are quantifying over suspects, and for completeness, we are quantifying over suspectors. Even a weakly-accurate failure detector guarantees that all processes trust the one visibly good process.
+
 
 ### Detecteurs de defaillance non fiables [CHT96]
 
@@ -399,8 +410,13 @@ SC’16 – November, 2016
 
 ## Broadcast algo - Hypercube
 
-- Hypercube Broadcast Algorithm - P. Ramanathan and Kang G. Shin, ’Reliable Broadcast Algorithm’, IEEE Trans. Computers, 1988
+- Hypercube Broadcast Algorithm - P. Ramanathan and Kang G. Shin, "Reliable Broadcast Algorithm", IEEE Trans. Computers, 1988
 - Disjoint paths to deliver multiple broadcast message copies
 - Completes if `f <= log(n)-1`, `f` being the number of falures, `n` the number of live processes
 
 ![fd-hypercube](./images/fd-cube.png)
+
+# Ressources 
+
+- [Yale FD resume](http://www.cs.yale.edu/homes/aspnes/pinewiki/FailureDetectors.html)
+- [Massive Yale Course on Distributed Systems Principles (430pages)](http://www.cs.yale.edu/homes/aspnes/classes/465/notes.pdf)
