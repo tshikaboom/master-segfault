@@ -11,6 +11,7 @@ En ce moment, on a donc des débuts de
   - [1. Broadcasts](ARA/Part1-Broadcasts.md)
   - [2. Mémoire partagée](ARA/Part2-SharedMemory.md)
   - [3. Consensus](ARA/Part3-Consensus.md)
+  - [4. Checkpointing](ARA/Part4-Checkpointing.md)
 - BDLE
   - [TME 1](BDLE/tme1.md)
   - [TME 2 Scala](BDLE/tme2-scala.md)
