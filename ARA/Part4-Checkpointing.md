@@ -29,7 +29,7 @@ V
 
 On considere que l'algo n'est pas tolerant, les sites finissent par revenir. Mais une fois revenu, il faut reprendre le bon fonctionement du systeme.
 
-Fig1 from 1Note
+![chp-deps](./images/chp-deps.png)
 
 Si l'algo est deterministe, et je log tout, tout le temps, sur hard.
 
@@ -65,3 +65,74 @@ Rince and repeat
 ## Algo du rollback-dependency
 
 ![asd](./images/chp-rollback.png)
+
+# Graph
+
+## Dependencies
+
+```none
+
+                .A              .B              
+local :     ----------------------------------- 
+
+                  A v
+causale :   -----------------------------------
+                    \
+            -----------------------------------
+                      ^ B
+```
+
+On dit ***A->B (B depend de A)***
+
+## History
+
+On dit `Hist(A) = {C, C->A}`
+
+![chp-history](./images/chp-history.png)
+
+## Rollback graph
+
+```none
+       C v           A v
+-----------------------------------
+         \
+-----------------------------------
+          ^D         ^ B
+
+donne
+
+C -> A
+    |
+    v
+D -> B
+```
+
+Logique: Si je retire X alors je peux apres utiliser l'autre
+
+## Execution timeline
+
+![chp-timeline](./images/chp-timeline.png)
+
+## The graph
+
+To get the graph we take the next checkpoint on both the sender and receiver lines and retrace an arrow between the two, following the sens from the original exeuction MPI.
+
+![chp-graph](./images/chp-graph.png)
+
+### Scenario 1 : All crash
+
+![chp-allcrash](./images/chp-allcrash.png)
+
+### Scenario 2 : Crashes one by one
+
+We use this scenario to find useless checkpoints
+
+![chp-crash11](./images/chp-crash11.png)
+
+### Scenario 3 : Z-Chemins/Cycles
+
+If there's a Z-Cycle on a checkpoint, then that checkpoint is useless. `A-z-B
+
+![chp-z](./images/chp-z.png)
+
+// TODO Why?
