@@ -46,10 +46,6 @@ S3 --------------------------------------------------------
 Pour reprendre, il faut que S1 ait 100% de son état sur "support stable" (backup
 et compagnie).
 
-On peut effectuer des sauvegardes incrémentales (checkpoint!) pour réduire le coût
-de la copie du contexte. On peut aussi retarder la sauvegarde jusqu'au dernier moment,
-à l'écriture (Copy on Write).
-
 Sauvegarder bien avant le crash est aussi une solution dès lors que toute
 l'éxécution est déterministe, ça ne fait pas de différence de sauvegarder
 "au moment" ou "un peu avant". 
@@ -63,11 +59,8 @@ après la coupure. Toutes les machines peuvent reprendre tranquillement
 **Coupure incohérente.** Pas vraiment possible de reprendre.
 
 **Points de reprise coordonnées** (implicites ou explicites). Les algorithmes construisent des checkpoints
-entre machines de manière coopérative/coordonnée.
-- **Explicites**: mise en accord entre serveurs.
-- **Implicites**: l'algo va markup certains messages envoyés afin de créer un point de reprise de manière naturelle.
-Les applications vont donc elles-mêmes effectuer leurs points de sauvegarde.
-Après cela, il faudra trouver une ligne de recouvrement cohérente entre tous les points.
+entre machines de manière coopérative/coordonnée. Explicites == mise en accord entre serveurs.
+Implicite == l'algo va markup certains messages envoyés afin de créer un point de reprise de manière naturelle.
 
 **Algorithmes à checkpoints spontanés** Je fais ce que je veux et je vous emmerdeuh!
 D'ailleurs si y'a problème qui survient, bah on verra sur le moment.
@@ -97,16 +90,3 @@ l'on sait que celles-ci ont un état cohérent et qu'elles puissent reprendre sa
 3. On itère jusqu'à ce qu'on ait plus de machine fautive
 
 **Algorithme du rollback**
-
-------
-
-Problème avec une grande quantité de checkpoints: la scalabilité. Beaucoup de complexité
-
-Le pire des cas == pas d'état courant (tout le monde a crash).
-
-En l'occurrence si on arrive à choper un état cohérent en cas de crash, on peut
-libérer des ressources en supprimant les checkpoints avant celui-ci. ?? does dat mek sense
-
-Caractérisation de points inutiles; les Z-chemin
-
-Z-chemin/Z-path: 
