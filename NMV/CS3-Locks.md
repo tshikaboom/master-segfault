@@ -16,6 +16,7 @@
     - [Lazy Locking](#lazy-locking)
         - [Idea: Use CAS to change next pointer](#idea-use-cas-to-change-next-pointer)
         - [Idea: Add “mark” to a node](#idea-add-%E2%80%9Cmark%E2%80%9D-to-a-node)
+    - [Liste sans verrous](#liste-sans-verrous)
     - [Ressources](#ressources)
 
 ## Algo Mellor-Crumley & Scott (MCS Lock)
@@ -229,6 +230,22 @@ to indicate whether its key been removed from the set.
   - mark and next pointer must be in the same word
 - “steal” a low-order bit from pointers
 - Java provides special class: AtomicMarkableReference
+
+## Liste sans verrous
+
+Eliminer les verrous completement 
+
+- Affectation de pointeurs par CAS 
+- Si conflit, echec, recommencer a zero
+
+Probleme: Concurrent `cas` and `remove`
+
+**Solution:**
+
+- CAS booleen de marquage `current=15`
+- CAS pointeur `pred=15`
+- si modifie, echec - recommencer
+
 
 ## Ressources
 
