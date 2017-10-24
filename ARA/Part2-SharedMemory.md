@@ -6,11 +6,12 @@ Originally syncs two threads, has been expanded to an arbitrary number of proces
 Informally, consider the case where T1 enters the critical section. Then the loop condition must have been false, which means either flag2 was false or victim was set to 2. If flag2 was false, then T2 was not even trying to enter the critical section. If victim was set to 2, then T2 was trying to enter the critical section, but T1 won the race.
 #### Code
 ```c
-T1                           T2
+//T1                           T2
 flag1 = true                 flag2 = true
 victim = 1                   victim = 2
 while (flag2 &&              while (flag1 &&
-    victim == 1) {}              victim == 2) {}
+	victim == 1) {              victim == 2) {
+	sleep();}			sleep();}
 // critical section          // critical section
 flag1 = false                flag2 = false
 ```

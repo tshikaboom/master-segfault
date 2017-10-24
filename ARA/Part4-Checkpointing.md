@@ -27,6 +27,14 @@ V
 
 # Checkpointing
 
+3 types de checkpoint: 
+- non coordonees 
+- coordones (les sites communiquent)
+    - implicite
+    - explicite je dis fait un checkpoint
+        - bloquant j'arrete tout le monde tout le monde fait un checkpoint
+        - non bloquant 
+
 On considere que l'algo n'est pas tolerant, les sites finissent par revenir. Mais une fois revenu, il faut reprendre le bon fonctionement du systeme.
 
 ![chp-deps](./images/chp-deps.png)
@@ -131,7 +139,11 @@ We use this scenario to find useless checkpoints
 
 ### Scenario 3 : Z-Chemins/Cycles
 
-If there's a Z-Cycle on a checkpoint, then that checkpoint is useless. `A-z-B
+On part toujours a droite d'un point, on arrive toujours a gauche d'un point.
+
+Soit une cupure corehente `C` alors qq soit `i`, `j`, il n'existe pas de z-chemin qui va de `i` a `j`. 
+
+If there's a Z-Cycle on a checkpoint, then that checkpoint is useless. `A-z-B`
 
 ![chp-z](./images/chp-z.png)
 
