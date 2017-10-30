@@ -30,7 +30,7 @@ V
 3 types de checkpoint: 
 - non coordonees 
 - coordones (les sites communiquent)
-    - implicite
+    - implicite les messages echanges 
     - explicite je dis fait un checkpoint
         - bloquant j'arrete tout le monde tout le monde fait un checkpoint
         - non bloquant 
