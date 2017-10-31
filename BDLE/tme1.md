@@ -1,37 +1,40 @@
-- [Requêtes décisionnelles avec TPC-H](#requ%C3%AAtes-d%C3%A9cisionnelles-avec-tpc-h)
-    - [R1 Résumé des prix](#r1-r%C3%A9sum%C3%A9-des-prix)
-    - [R2:Fournisseur proposant les meilleurs prix](#r2fournisseur-proposant-les-meilleurs-prix)
-    - [R3: Commandes à expédier en priorité](#r3-commandes-%C3%A0-exp%C3%A9dier-en-priorit%C3%A9)
-- [Requêtes analytiques](#requ%C3%AAtes-analytiques)
-    - [A1: Le top 10 des clients ayant dépensé le plus (a1.sql ou a1.txt).](#a1-le-top-10-des-clients-ayant-d%C3%A9pens%C3%A9-le-plus-a1sql-ou-a1txt)
-        - [Afficher la liste des clients avec le montant total de leurs commandes. Pour chaque client, donner son n° et le montant total de ses commandes. Trier le résultat par ordre décroissant du montant.](#afficher-la-liste-des-clients-avec-le-montant-total-de-leurs-commandes-pour-chaque-client-donner-son-n%C2%B0-et-le-montant-total-de-ses-commandes-trier-le-r%C3%A9sultat-par-ordre-d%C3%A9croissant-du-montant)
-        - [Afficher seulement les 10 premiers clients.](#afficher-seulement-les-10-premiers-clients)
-        - [Compléter la requête précédente pour afficher le rang de chaque client. Voir a1-res.](#compl%C3%A9ter-la-requ%C3%AAte-pr%C3%A9c%C3%A9dente-pour-afficher-le-rang-de-chaque-client-voir-a1-res)
-    - [A3: Le top 5 des pays avec le plus grand nombre de clients](#a3-le-top-5-des-pays-avec-le-plus-grand-nombre-de-clients)
-        - [Afficher la liste des pays, référencés dans Nation, avec leur nombre de clients. Donner le n° du pays, son nom et le nb de clients. Classer le résultat par ordre décroissant du nombre de clients. Y a-t-il des pays ex-aequo ?](#afficher-la-liste-des-pays-r%C3%A9f%C3%A9renc%C3%A9s-dans-nation-avec-leur-nombre-de-clients-donner-le-n%C2%B0-du-pays-son-nom-et-le-nb-de-clients-classer-le-r%C3%A9sultat-par-ordre-d%C3%A9croissant-du-nombre-de-clients-y-a-t-il-des-pays-ex-aequo)
-        - [Afficher seulement les tuples du résultat dont le rang est inférieur ou égal à 5. Est-ce toujours exactement les 5 premiers tuples du résultat ? Quelle est la différence entre les fonctions rank() et dense_rank() ? Voir a3-res.](#afficher-seulement-les-tuples-du-r%C3%A9sultat-dont-le-rang-est-inf%C3%A9rieur-ou-%C3%A9gal-%C3%A0-5-est-ce-toujours-exactement-les-5-premiers-tuples-du-r%C3%A9sultat-quelle-est-la-diff%C3%A9rence-entre-les-fonctions-rank-et-denserank-voir-a3-res)
-        - [Expliquer brièvement comment traiter cette requête sans utiliser les fonctions analytiques prédéfinies du SGBD.](#expliquer-bri%C3%A8vement-comment-traiter-cette-requ%C3%AAte-sans-utiliser-les-fonctions-analytiques-pr%C3%A9d%C3%A9finies-du-sgbd)
-    - [A4: Le top 20% des pays avec le plus grand nombre de clients.](#a4-le-top-20-des-pays-avec-le-plus-grand-nombre-de-clients)
-        - [Afficher seulement les pays (référencés dans Nation) classés parmi les 20% meilleurs. Le résultat a4-res est-il correct? Justifier.](#afficher-seulement-les-pays-r%C3%A9f%C3%A9renc%C3%A9s-dans-nation-class%C3%A9s-parmi-les-20-meilleurs-le-r%C3%A9sultat-a4-res-est-il-correct-justifier)
-        - [Pourquoi le dénominateur est-il `(N - 1)` au lieu de `N`?](#pourquoi-le-d%C3%A9nominateur-est-il-n---1-au-lieu-de-n)
-    - [A5: Classement national des produits vendus en plus grande quantité.](#a5-classement-national-des-produits-vendus-en-plus-grande-quantit%C3%A9)
-        - [Pour chaque pays (référencé dans Nation), donner le classement national des produits les plus achetés par des clients de ce pays](#pour-chaque-pays-r%C3%A9f%C3%A9renc%C3%A9-dans-nation-donner-le-classement-national-des-produits-les-plus-achet%C3%A9s-par-des-clients-de-ce-pays)
-    - [A6: Fenêtre temporelle glissante](#a6-fen%C3%AAtre-temporelle-glissante)
-        - [a1) (facultatif) Pour chaque mois, quel est le prix moyen des commandes du dernier trimestre ?](#a1-facultatif-pour-chaque-mois-quel-est-le-prix-moyen-des-commandes-du-dernier-trimestre)
-        - [a2) Pour chaque jour, donner le prix moyen des commandes effectuées les 90 jours précédents. La moyenne est calculée sur l'ensemble des commandes enregistrées pendant les 90 jours précédents](#a2-pour-chaque-jour-donner-le-prix-moyen-des-commandes-effectu%C3%A9es-les-90-jours-pr%C3%A9c%C3%A9dents-la-moyenne-est-calcul%C3%A9e-sur-lensemble-des-commandes-enregistr%C3%A9es-pendant-les-90-jours-pr%C3%A9c%C3%A9dents)
-        - [b) Pour chaque jour, quel est le chiffre d'affaire des 30 derniers jours ?](#b-pour-chaque-jour-quel-est-le-chiffre-daffaire-des-30-derniers-jours)
-- [Cube](#cube)
-    - [Rollup](#rollup)
-    - [Question 1 : Opérations algébriques](#question-1-op%C3%A9rations-alg%C3%A9briques)
-        - [a) Quelles sont, d'après le cours, les opérations à appliquer sur C1 pour obtenir C2 ? Donner l'ordre dans lequel les opérations sont appliquées](#a-quelles-sont-dapr%C3%A8s-le-cours-les-op%C3%A9rations-%C3%A0-appliquer-sur-c1-pour-obtenir-c2-donner-lordre-dans-lequel-les-op%C3%A9rations-sont-appliqu%C3%A9es)
-        - [b) Donner la requête SQL calculant toute les cellules de C2 (264 cellules)](#b-donner-la-requ%C3%AAte-sql-calculant-toute-les-cellules-de-c2-264-cellules)
-    - [Question 2 : Agrégation sur les niveaux d'une dimension](#question-2-agr%C3%A9gation-sur-les-niveaux-dune-dimension)
-        - [a) T2R: Ecrire T1 en utilisant le mot-clé ROLLUP. Voir le résultat de T2R](#a-t2r-ecrire-t1-en-utilisant-le-mot-cl%C3%A9-rollup-voir-le-r%C3%A9sultat-de-t2r)
-        - [b) T2U: Ecrire T1 sans utiliser rollup mais UNION](#b-t2u-ecrire-t1-sans-utiliser-rollup-mais-union)
+<!-- vscode-markdown-toc -->
+* 1. [R1 Résumé des prix](#R1Rsumdesprix)
+* 2. [R2:Fournisseur proposant les meilleurs prix](#R2:Fournisseurproposantlesmeilleursprix)
+* 3. [R3: Commandes à expédier en priorité](#R3:Commandesexpdierenpriorit)
+* 4. [A1: Le top 10 des clients ayant dépensé le plus (a1.sql ou a1.txt).](#A1:Letop10desclientsayantdpensleplusa1.sqloua1.txt.)
+	* 4.1. [Afficher la liste des clients avec le montant total de leurs commandes. Pour chaque client, donner son n° et le montant total de ses commandes. Trier le résultat par ordre décroissant du montant.](#Afficherlalistedesclientsaveclemontanttotaldeleurscommandes.Pourchaqueclientdonnersonnetlemontanttotaldesescommandes.Trierlersultatparordredcroissantdumontant.)
+	* 4.2. [Afficher seulement les 10 premiers clients.](#Afficherseulementles10premiersclients.)
+	* 4.3. [Compléter la requête précédente pour afficher le rang de chaque client. Voir a1-res.](#Complterlarequteprcdentepourafficherlerangdechaqueclient.Voira1-res.)
+* 5. [A3: Le top 5 des pays avec le plus grand nombre de clients](#A3:Letop5despaysavecleplusgrandnombredeclients)
+	* 5.1. [Afficher la liste des pays, référencés dans Nation, avec leur nombre de clients. Donner le n° du pays, son nom et le nb de clients. Classer le résultat par ordre décroissant du nombre de clients. Y a-t-il des pays ex-aequo ?](#AfficherlalistedespaysrfrencsdansNationavecleurnombredeclients.Donnerlendupayssonnometlenbdeclients.Classerlersultatparordredcroissantdunombredeclients.Ya-t-ildespaysex-aequo)
+	* 5.2. [Afficher seulement les tuples du résultat dont le rang est inférieur ou égal à 5. Est-ce toujours exactement les 5 premiers tuples du résultat ? Quelle est la différence entre les fonctions rank() et dense_rank() ? Voir a3-res.](#Afficherseulementlestuplesdursultatdontlerangestinfrieurougal5.Est-cetoujoursexactementles5premierstuplesdursultatQuelleestladiffrenceentrelesfonctionsranketdense_rankVoira3-res.)
+	* 5.3. [Expliquer brièvement comment traiter cette requête sans utiliser les fonctions analytiques prédéfinies du SGBD.](#ExpliquerbrivementcommenttraitercetterequtesansutiliserlesfonctionsanalytiquesprdfiniesduSGBD.)
+* 6. [A4: Le top 20% des pays avec le plus grand nombre de clients.](#A4:Letop20despaysavecleplusgrandnombredeclients.)
+	* 6.1. [Afficher seulement les pays (référencés dans Nation) classés parmi les 20% meilleurs. Le résultat a4-res est-il correct? Justifier.](#AfficherseulementlespaysrfrencsdansNationclasssparmiles20meilleurs.Lersultata4-resest-ilcorrectJustifier.)
+	* 6.2. [Pourquoi le dénominateur est-il `(N - 1)` au lieu de `N`?](#Pourquoilednominateurest-ilN-1aulieudeN)
+* 7. [A5: Classement national des produits vendus en plus grande quantité.](#A5:Classementnationaldesproduitsvendusenplusgrandequantit.)
+	* 7.1. [Pour chaque pays (référencé dans Nation), donner le classement national des produits les plus achetés par des clients de ce pays](#PourchaquepaysrfrencdansNationdonnerleclassementnationaldesproduitslesplusachetspardesclientsdecepays)
+* 8. [A6: Fenêtre temporelle glissante](#A6:Fentretemporelleglissante)
+	* 8.1. [a1) (facultatif) Pour chaque mois, quel est le prix moyen des commandes du dernier trimestre ?](#a1facultatifPourchaquemoisquelestleprixmoyendescommandesduderniertrimestre)
+	* 8.2. [a2) Pour chaque jour, donner le prix moyen des commandes effectuées les 90 jours précédents. La moyenne est calculée sur l'ensemble des commandes enregistrées pendant les 90 jours précédents](#a2Pourchaquejourdonnerleprixmoyendescommandeseffectuesles90joursprcdents.Lamoyenneestcalculesurlensembledescommandesenregistrespendantles90joursprcdents)
+	* 8.3. [b) Pour chaque jour, quel est le chiffre d'affaire des 30 derniers jours ?](#bPourchaquejourquelestlechiffredaffairedes30derniersjours)
+* 9. [Rollup](#Rollup)
+* 10. [Question 1 : Opérations algébriques](#Question1:Oprationsalgbriques)
+	* 10.1. [a) Quelles sont, d'après le cours, les opérations à appliquer sur C1 pour obtenir C2 ? Donner l'ordre dans lequel les opérations sont appliquées](#aQuellessontdaprslecourslesoprationsappliquersurC1pourobtenirC2Donnerlordredanslequellesoprationssontappliques)
+	* 10.2. [b) Donner la requête SQL calculant toute les cellules de C2 (264 cellules)](#bDonnerlarequteSQLcalculanttoutelescellulesdeC2264cellules)
+* 11. [Question 2 : Agrégation sur les niveaux d'une dimension](#Question2:Agrgationsurlesniveauxdunedimension)
+	* 11.1. [a) T2R: Ecrire T1 en utilisant le mot-clé ROLLUP. Voir le résultat de T2R](#aT2R:EcrireT1enutilisantlemot-clROLLUP.VoirlersultatdeT2R)
+	* 11.2. [b) T2U: Ecrire T1 sans utiliser rollup mais UNION](#bT2U:EcrireT1sansutiliserrollupmaisUNION)
 
-# Requêtes décisionnelles avec TPC-H
+<!-- vscode-markdown-toc-config
+	numbering=true
+	autoSave=true
+	/vscode-markdown-toc-config -->
+<!-- /vscode-markdown-toc -->
+# Requêtes décisionnelles avec TPC-H asd
 
-## R1 Résumé des prix
+##  1. <a name='R1Rsumdesprix'></a>R1 Résumé des prix
 Quels sont les articles commandés, livrés avant la date d (incluse), regroupés selon leur état d'expédition et de réception ? Le résultat de la requête contient le nombre d'articles, le prix total HT (avant et après la réduction) et TTC, la quantité moyenne, le prix moyen, la réduction moyenne et le nombre le lignes de commandes.
 ```sql
 select
@@ -48,7 +51,7 @@ where L_receiptdate <= '01-01-1993'
 group by L_returnflag, L_linestatus;
 ```
 
-## R2:Fournisseur proposant les meilleurs prix
+##  2. <a name='R2:Fournisseurproposantlesmeilleursprix'></a>R2:Fournisseur proposant les meilleurs prix
 Soient une région R, et les produits de taille S et de type T. Quels sont les fournisseurs de la région R proposant les meilleurs prix pour les produits de type T et de taille S ? Trier le résultat selon le solde du fournisseur (ordre décroissant). Donner le solde et le nom du fournisseur, le nom de son pays, le numéro et la marque du produit, l'adresse et le n° de téléphone du fournisseur.
 ```sql
 select min(ps_supplycost)
@@ -67,7 +70,7 @@ where
   and p_partkey=ps_partkey;
 ```
 
-## R3: Commandes à expédier en priorité
+##  3. <a name='R3:Commandesexpdierenpriorit'></a>R3: Commandes à expédier en priorité
 Pour un type de marché S, quelles sont les commandes, non encore expédiées à la date d, les plus importantes en terme de montant restant à encaisser (i.e., la somme du prix HT, après réduction, des articles non expédiés de la commande) ? Trier le résultat par ordre décroissant de prix.
 ```sql
 select o_totalprice
@@ -80,8 +83,8 @@ order by o_totalprice;
 
 # Requêtes analytiques
 
-## A1: Le top 10 des clients ayant dépensé le plus (a1.sql ou a1.txt).
-### Afficher la liste des clients avec le montant total de leurs commandes. Pour chaque client, donner son n° et le montant total de ses commandes. Trier le résultat par ordre décroissant du montant.
+##  4. <a name='A1:Letop10desclientsayantdpensleplusa1.sqloua1.txt.'></a>A1: Le top 10 des clients ayant dépensé le plus (a1.sql ou a1.txt).
+###  4.1. <a name='Afficherlalistedesclientsaveclemontanttotaldeleurscommandes.Pourchaqueclientdonnersonnetlemontanttotaldesescommandes.Trierlersultatparordredcroissantdumontant.'></a>Afficher la liste des clients avec le montant total de leurs commandes. Pour chaque client, donner son n° et le montant total de ses commandes. Trier le résultat par ordre décroissant du montant.
 ```sql
 select
   c_custkey,
@@ -93,7 +96,7 @@ group by c_custkey;
 ```
 
 
-### Afficher seulement les 10 premiers clients.
+###  4.2. <a name='Afficherseulementles10premiersclients.'></a>Afficher seulement les 10 premiers clients.
 Ajouter une contition de selection sur l'attribut implicite nomme `rownum`:
 `with T as (req 1) select * from T where rownum <= N`
 ```sql
@@ -111,7 +114,7 @@ from Req1
 where rownum <=10
 ```
 
-### Compléter la requête précédente pour afficher le rang de chaque client. Voir a1-res.
+###  4.3. <a name='Complterlarequteprcdentepourafficherlerangdechaqueclient.Voira1-res.'></a>Compléter la requête précédente pour afficher le rang de chaque client. Voir a1-res.
 ```sql
 --a1-res
  C_CUSTKEY MONTANT_TOTAL       RANG
@@ -128,9 +131,9 @@ where rownum <=10
        615     3257380,5	 10
 ```
 
-## A3: Le top 5 des pays avec le plus grand nombre de clients
+##  5. <a name='A3:Letop5despaysavecleplusgrandnombredeclients'></a>A3: Le top 5 des pays avec le plus grand nombre de clients
 Formatting columns : `column name format A20`
-### Afficher la liste des pays, référencés dans Nation, avec leur nombre de clients. Donner le n° du pays, son nom et le nb de clients. Classer le résultat par ordre décroissant du nombre de clients. Y a-t-il des pays ex-aequo ?
+###  5.1. <a name='AfficherlalistedespaysrfrencsdansNationavecleurnombredeclients.Donnerlendupayssonnometlenbdeclients.Classerlersultatparordredcroissantdunombredeclients.Ya-t-ildespaysex-aequo'></a>Afficher la liste des pays, référencés dans Nation, avec leur nombre de clients. Donner le n° du pays, son nom et le nb de clients. Classer le résultat par ordre décroissant du nombre de clients. Y a-t-il des pays ex-aequo ?
 ```sql
 with r2 as (
   select
@@ -148,7 +151,7 @@ from r2
 where rownum <= 10
 ```
 
-### Afficher seulement les tuples du résultat dont le rang est inférieur ou égal à 5. Est-ce toujours exactement les 5 premiers tuples du résultat ? Quelle est la différence entre les fonctions rank() et dense_rank() ? Voir a3-res.
+###  5.2. <a name='Afficherseulementlestuplesdursultatdontlerangestinfrieurougal5.Est-cetoujoursexactementles5premierstuplesdursultatQuelleestladiffrenceentrelesfonctionsranketdense_rankVoira3-res.'></a>Afficher seulement les tuples du résultat dont le rang est inférieur ou égal à 5. Est-ce toujours exactement les 5 premiers tuples du résultat ? Quelle est la différence entre les fonctions rank() et dense_rank() ? Voir a3-res.
 `dense_rank` valeurs en continue - 1, 1, 1, 2, 2, 2, 3, 3, 3 etc
 `rank` valeurs skip - 1, 1, 3, 3, 3, 6 etc
 
@@ -168,13 +171,13 @@ N_NATIONKEY N_NAME     NB_DE_CLIENTS	   RANG
 	 20 SAUDI ARAB		  67	      5
 ```
 
-### Expliquer brièvement comment traiter cette requête sans utiliser les fonctions analytiques prédéfinies du SGBD.
+###  5.3. <a name='ExpliquerbrivementcommenttraitercetterequtesansutiliserlesfonctionsanalytiquesprdfiniesduSGBD.'></a>Expliquer brièvement comment traiter cette requête sans utiliser les fonctions analytiques prédéfinies du SGBD.
 Au lieu de faire un `rang` on fait un `order by`
 
 
-## A4: Le top 20% des pays avec le plus grand nombre de clients.
+##  6. <a name='A4:Letop20despaysavecleplusgrandnombredeclients.'></a>A4: Le top 20% des pays avec le plus grand nombre de clients.
 
-### Afficher seulement les pays (référencés dans Nation) classés parmi les 20% meilleurs. Le résultat a4-res est-il correct? Justifier.
+###  6.1. <a name='AfficherseulementlespaysrfrencsdansNationclasssparmiles20meilleurs.Lersultata4-resest-ilcorrectJustifier.'></a>Afficher seulement les pays (référencés dans Nation) classés parmi les 20% meilleurs. Le résultat a4-res est-il correct? Justifier.
 
 Fixer le format d'affichage du rang avec la commande:
   `column rang_pourcent format 9.99`
@@ -218,13 +221,13 @@ N_NATIONKEY N_NAME     NB_DE_CLIENTS RANG_POURCENT
 	 20 SAUDI ARAB		  67	       .17
 ```
 
-### Pourquoi le dénominateur est-il `(N - 1)` au lieu de `N`?
+###  6.2. <a name='Pourquoilednominateurest-ilN-1aulieudeN'></a>Pourquoi le dénominateur est-il `(N - 1)` au lieu de `N`?
 
 Les index commencent a 0?
 
-## A5: Classement national des produits vendus en plus grande quantité.
+##  7. <a name='A5:Classementnationaldesproduitsvendusenplusgrandequantit.'></a>A5: Classement national des produits vendus en plus grande quantité.
 
-### Pour chaque pays (référencé dans Nation), donner le classement national des produits les plus achetés par des clients de ce pays
+###  7.1. <a name='PourchaquepaysrfrencdansNationdonnerleclassementnationaldesproduitslesplusachetspardesclientsdecepays'></a>Pour chaque pays (référencé dans Nation), donner le classement national des produits les plus achetés par des clients de ce pays
 
 Pour réduire le résultat, on ne veut afficher que les produits dont la quantité achetée (pour un pays et un produit) est supérieure à 150. Afficher les attributs pays, produit, quantité_achetée et rang.
 
@@ -253,13 +256,13 @@ from r5
 where quant > 180 and rownum <= 10;
 ```
 
-## A6: Fenêtre temporelle glissante
+##  8. <a name='A6:Fentretemporelleglissante'></a>A6: Fenêtre temporelle glissante
 
 - __Répondre aux questions a2) au lieu de a1), puis b)__
 
-### a1) (facultatif) Pour chaque mois, quel est le prix moyen des commandes du dernier trimestre ?
+###  8.1. <a name='a1facultatifPourchaquemoisquelestleprixmoyendescommandesduderniertrimestre'></a>a1) (facultatif) Pour chaque mois, quel est le prix moyen des commandes du dernier trimestre ?
 
-### a2) Pour chaque jour, donner le prix moyen des commandes effectuées les 90 jours précédents. La moyenne est calculée sur l'ensemble des commandes enregistrées pendant les 90 jours précédents
+###  8.2. <a name='a2Pourchaquejourdonnerleprixmoyendescommandeseffectuesles90joursprcdents.Lamoyenneestcalculesurlensembledescommandesenregistrespendantles90joursprcdents'></a>a2) Pour chaque jour, donner le prix moyen des commandes effectuées les 90 jours précédents. La moyenne est calculée sur l'ensemble des commandes enregistrées pendant les 90 jours précédents
 
 ```sql
 with R5 as(
@@ -276,7 +279,7 @@ from R5
 where rownum <= 62
 ```
 
-### b) Pour chaque jour, quel est le chiffre d'affaire des 30 derniers jours ?
+###  8.3. <a name='bPourchaquejourquelestlechiffredaffairedes30derniersjours'></a>b) Pour chaque jour, quel est le chiffre d'affaire des 30 derniers jours ?
 
 ```sql
 with R6 as (
@@ -348,13 +351,13 @@ Extrait de C1
 
 ```
 
-## Rollup 
+##  9. <a name='Rollup'></a>Rollup 
 
 `rollup(a, b, c)` 3 niveaux de la meme dimention. `a` niveau le plus haut, `c` niveau le plus bas.
 
 `cube(a, b, c)` -> 3 dimentions differentes
 
-## Question 1 : Opérations algébriques
+##  10. <a name='Question1:Oprationsalgbriques'></a>Question 1 : Opérations algébriques
 
 On considère le cube C2 à deux dimensions obtenu à partir de C1 tel que :
 
@@ -362,7 +365,7 @@ On s'intéresse seulement aux ventes de produits en cuivre (dont le type se term
 On considère seulement le niveau type de la dimensions produit et le niveau nom de la dimension client.
 Les valeurs des cellules de C2 représentent la somme des ventes quelle que soit la date.
 
-### a) Quelles sont, d'après le cours, les opérations à appliquer sur C1 pour obtenir C2 ? Donner l'ordre dans lequel les opérations sont appliquées
+###  10.1. <a name='aQuellessontdaprslecourslesoprationsappliquersurC1pourobtenirC2Donnerlordredanslequellesoprationssontappliques'></a>a) Quelles sont, d'après le cours, les opérations à appliquer sur C1 pour obtenir C2 ? Donner l'ordre dans lequel les opérations sont appliquées
 
 ```sql
 - 0: initial
@@ -412,7 +415,7 @@ Les valeurs des cellules de C2 représentent la somme des ventes quelle que soit
 - 4: enlever une dimention: projection aggregative sur produit, client
 ```
 
-### b) Donner la requête SQL calculant toute les cellules de C2 (264 cellules)
+###  10.2. <a name='bDonnerlarequteSQLcalculanttoutelescellulesdeC2264cellules'></a>b) Donner la requête SQL calculant toute les cellules de C2 (264 cellules)
 
 Voir un extrait de C2:
 
@@ -448,10 +451,10 @@ P_PARTKEY  O_CUSTKEY	   TOTAL
   197	 1392	   26901
   ```
 
-## Question 2 : Agrégation sur les niveaux d'une dimension
+##  11. <a name='Question2:Agrgationsurlesniveauxdunedimension'></a>Question 2 : Agrégation sur les niveaux d'une dimension
 
 On veut calculer, en une seule requête T2, tous les cubes obtenus à partir de C2 par agrégation sur la dimension client (ayant 3 niveaux). Le résultat de la requête contient toutes les données des cubes à tous les niveaux d'agrégation sur la dimension client.
 
-### a) T2R: Ecrire T1 en utilisant le mot-clé ROLLUP. Voir le résultat de T2R
+###  11.1. <a name='aT2R:EcrireT1enutilisantlemot-clROLLUP.VoirlersultatdeT2R'></a>a) T2R: Ecrire T1 en utilisant le mot-clé ROLLUP. Voir le résultat de T2R
 
-### b) T2U: Ecrire T1 sans utiliser rollup mais UNION
+###  11.2. <a name='bT2U:EcrireT1sansutiliserrollupmaisUNION'></a>b) T2U: Ecrire T1 sans utiliser rollup mais UNION
