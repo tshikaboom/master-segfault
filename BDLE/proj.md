@@ -1,0 +1,110 @@
+# Prep
+
+## Load `YAGO`
+
+```scala
+case class Triple(sujet: String, prop: String, objet: String)
+
+val yagoFile = "/tmp/BDLE/dataset/yagoFacts5M.txt"
+
+val yago = sc.textFile(yagoFile).
+  map(ligne => ligne.split("\\t")).coalesce(8).
+  map(tab => Triple(tab(0), tab(1), tab(2))).toDS()
+
+yago.persist
+yago.count
+```
+
+# Statistiques de base
+
+## Retourner la liste des 10 propriétés les plus fréquentes. La sortie doit être une liste de couples (prop, freq) triée de manière décroissante
+
+### Change `count` to `freq`
+
+```scala
+withColumnRenamed("count", "freq")
+```
+
+### Reponse
+
+```scala
+val q1 = yago
+    .groupBy("prop")
+    .count.withColumnRenamed("count", "freq")
+    .orderBy($"count".desc)
+    .takeAsList(10)
+```
+
+## Retourner la liste des 10 noeuds ayant le plus grand degré sortant
+
+__Rappel__ Le degré sortant d'un noeud n est le nombre de triplets où n est le sujet. La sortie doit être une liste de couples (sujet, degré) triée de manière décroissante
+
+```scala
+val q2 = yago
+    .map{case Triple(sujet, prop, object) => sujet}
+    .withColumnRenamed("value", "sujet")
+    .groupBy("sujet")
+    .count
+    .withColumnRenamed("count, degre")
+    .orderBy($"degre".desc)
+    .takeAsList(10)
+```
+
+## Pour chaque propriété, retourner le nombre de sujets distincts d'où elle démarre ainsi que le nombre d'objets distincts où elle arrive. La sortie doit être une liste de tuples (pro, nb-sujets, nb-objets)
+
+**Attention** Un objet (sujet) peut avoir plusieurs fois la même propriété
+
+```scala
+val q3 = yago
+    .map{case Triple(sujet, prop, object) => sujet}
+    .withColumnRenamed("_1", "prop")
+    .withColumnRenamed("_2", "objet")
+    .distinct
+    .takeAsList(10)
+```
+
+## Encoder la fonction noeudDegre(d:entier) qui retourne les noeuds de degrée d. Le degré d'un noeud = degré sortant + degré entrant
+
+```scala
+
+```
+
+# Statistiques sur les chemins et co-occurences
+
+## Pour chaque pattern de 2 propriétés qui se suivent, calculer sa fréquence dans les données. Exemple Si le triple pattern (?x,influences,?y) (?y, livesIn, ?z) retourne 1000 résultats alor la fréquence du pattern (influences, livesIn) vaut 1000
+
+```scala
+
+```
+
+## Encoder la fonction cheminNoeudLongueur(noeud: string, len:entier) qui retourne, pour le sujet noeud, tous les chemins démarrant de noeud et ayant la longueur len. La longueur d'un chemin est le nombre de propriétés traversées
+
+```scala
+
+```
+
+## Pour chaque paire de propriétés, donner le nombre de sujets qu'elles partagent. Exemple. Si le triple pattern (x, livesIn, y) (x, citizenOf, z) retourne 10 résultat alors les propriétés de la paire (livesIn, citizenOf) partagent 10 sujets
+
+```scala
+
+```
+
+# Bonus
+
+## Dans un premier temps, compléter les triplets de dbpediaShortName8M avec le type de leurs noeuds qui se trouvent dans dbpediaShortNameTypeFor8M.txt.
+
+```scala
+
+```
+
+## Pour chaque type, retourner son domaine, i.e le nombre de sujets distincts ayant ce type.
+
+```scala
+
+```
+
+## Pour chaque type, retourner son co-domaine, i.e le nombre d'objets distincts ayant ce type.
+
+```scala
+
+```
