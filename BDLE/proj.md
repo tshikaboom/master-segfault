@@ -36,6 +36,15 @@ val q1 = yago
 ```
 
 ## Q2: Retourner la liste des 10 noeuds ayant le plus grand degré sortant
+=======
+### Output
+``̀`scala
+scala> yago.groupBy("prop").count.withColumnRenamed("count", "freq").orderBy($"count".desc).takeAsList(10)
+res3: java.util.List[org.apache.spark.sql.Row] = [[<isAffiliatedTo>,1116512], [<playsFor>,772092], [<isCitizenOf>,731207], [<isLocatedIn>,512925], [<hasGender>,486528], [<wasBornIn>,405252], [<actedIn>,242436], [<diedIn>,131001], [<hasWonPrize>,115476], [<graduatedFrom>,112670]]
+```
+
+
+## Retourner la liste des 10 noeuds ayant le plus grand degré sortant
 
 __Rappel__ Le degré sortant d'un noeud n est le nombre de triplets où n est le sujet. La sortie doit être une liste de couples (sujet, degré) triée de manière décroissante
 
