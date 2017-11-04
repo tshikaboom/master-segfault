@@ -166,18 +166,50 @@ scala>
 Exemple Si le triple pattern `(?x,influences,?y) (?y, livesIn, ?z)` retourne `1000` résultats alor la fréquence du pattern `(influences, livesIn)` vaut `1000`
 
 ```scala
-val t1 = yago
-    .withColumnRenamed("prop", "A")
-    .withColumnRenamed("objet", "J")
-    .select("sujet", "A", "J")
+val t1 = yago.
+    withColumnRenamed("prop", "A").
+    withColumnRenamed("objet", "J").
+    select("sujet", "A", "J")
     
-val t2 = yago
-    .withColumnRenamed("prop", "B")
-    .withColumnRenamed("sujet", "J")
-    .select("objet", "B", "J")
+val t2 = yago.
+    withColumnRenamed("prop", "B").
+    withColumnRenamed("sujet", "J").
+    select("objet", "B", "J")
 
 val res = t1.join(t2, "J").groupBy("A", "B").count()
 ```
+
+### Output
+
+```scala
++--------------------+--------------------+------+
+|                   A|                   B| count|
++--------------------+--------------------+------+
+|           <livesIn>|        <hasCapital>| 20888|
+|       <isCitizenOf>|       <isLocatedIn>|513870|
+|            <diedIn>|<hasOfficialLangu...| 14015|
+|    <isAffiliatedTo>|         <wasBornIn>|    85|
+|          <playsFor>|    <isAffiliatedTo>|   838|
+|         <wasBornIn>|       <hasNeighbor>|135628|
+|              <owns>|           <imports>|   255|
+|       <isMarriedTo>|        <isKnownFor>|     2|
+|           <created>|            <edited>|     6|
+|    <isInterestedIn>|     <graduatedFrom>|    97|
+|<hasAcademicAdvisor>|       <isMarriedTo>|    21|
+|           <created>|          <directed>|    80|
+|        <happenedIn>|<hasOfficialLangu...| 20690|
+|       <isLocatedIn>|       <hasCurrency>| 46766|
+|        <hasCapital>|        <hasCapital>|     6|
+|         <dealsWith>|              <owns>|  1833|
+|           <created>|<hasOfficialLangu...|    78|
+|          <hasChild>|           <livesIn>|    32|
+|       <isMarriedTo>|    <isAffiliatedTo>|    67|
+|        <isKnownFor>|       <isCitizenOf>|    56|
++--------------------+--------------------+------+
+only showing top 20 rows
+
+```
+
 
 ## Q2: Encoder la fonction `cheminNoeudLongueur(noeud: string, len:entier)` qui retourne, pour le sujet `noeud`, tous les chemins démarrant de noeud et ayant la longueur `len`
 
@@ -201,6 +233,38 @@ val q2 = yago
 
 val q3 = q1.join(q2, "prop")
 ```
+
+### Output
+
+```scala
++--------------------+--------+-----------------+-------------------+--------------------+
+|                prop|   sujet|            objet|              sujet|               objet|
++--------------------+--------+-----------------+-------------------+--------------------+
+|<hasOfficialLangu...|<Aargau>|<German_language>|           <Aargau>|   <German_language>|
+|<hasOfficialLangu...|<Aargau>|<German_language>|<Abbasid_Caliphate>|            <Arabic>|
+|<hasOfficialLangu...|<Aargau>|<German_language>|<Abbasid_Caliphate>|  <Aramaic_language>|
+|<hasOfficialLangu...|<Aargau>|<German_language>|<Abbasid_Caliphate>|  <Berber_languages>|
+|<hasOfficialLangu...|<Aargau>|<German_language>|<Abbasid_Caliphate>| <Georgian_language>|
+|<hasOfficialLangu...|<Aargau>|<German_language>|<Abbasid_Caliphate>|  <Turkic_languages>|
+|<hasOfficialLangu...|<Aargau>|<German_language>|<Abbasid_Caliphate>|    <Greek_language>|
+|<hasOfficialLangu...|<Aargau>|<German_language>|<Abbasid_Caliphate>| <Armenian_language>|
+|<hasOfficialLangu...|<Aargau>|<German_language>|<Abbasid_Caliphate>|   <Hebrew_language>|
+|<hasOfficialLangu...|<Aargau>|<German_language>|         <Abkhazia>|  <Russian_language>|
+|<hasOfficialLangu...|<Aargau>|<German_language>|           <Acadia>|   <French_language>|
+|<hasOfficialLangu...|<Aargau>|<German_language>|   <Aceh_Sultanate>|            <Arabic>|
+|<hasOfficialLangu...|<Aargau>|<German_language>|   <Aceh_Sultanate>|    <Malay_language>|
+|<hasOfficialLangu...|<Aargau>|<German_language>|<Achaemenid_Empire>|  <Persian_language>|
+|<hasOfficialLangu...|<Aargau>|<German_language>|<Aden_Protectorate>|<Ottoman_Turkish_...|
+|<hasOfficialLangu...|<Aargau>|<German_language>|<Aden_Protectorate>|            <Arabic>|
+|<hasOfficialLangu...|<Aargau>|<German_language>|<Aden_Protectorate>|  <English_language>|
+|<hasOfficialLangu...|<Aargau>|<German_language>|<Aden_Protectorate>|  <Persian_language>|
+|<hasOfficialLangu...|<Aargau>|<German_language>|           <Adjara>| <Georgian_language>|
+|<hasOfficialLangu...|<Aargau>|<German_language>|           <Adygea>|  <Russian_language>|
++--------------------+--------+-----------------+-------------------+--------------------+
+only showing top 20 rows
+
+```
+
 
 # Bonus
 
