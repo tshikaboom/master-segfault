@@ -216,7 +216,16 @@ only showing top 20 rows
 La longueur d'un chemin est le nombre de propriétés traversées
 
 ```scala
-
+def abc(n: String, len: Int) : List[String] = {
+    def aux(n: String, len: Int, acc:List[String]) = {
+            if (len == 0) {
+	               return acc
+		               }
+			               yago.where($"sujet" === "<David_Bowie>").select("objet")
+				           } // aux
+					       return aux(n, len, List())
+					       } // Def
+					       
 ```
 
 ## Q3: Pour chaque paire de propriétés, donner le nombre de sujets qu'elles partagent. 
