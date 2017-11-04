@@ -17,7 +17,7 @@ yago.count
 
 # Statistiques de base
 
-## Retourner la liste des 10 propriétés les plus fréquentes. La sortie doit être une liste de couples `(prop, freq)` triée de manière décroissante
+## Q1: Retourner la liste des 10 propriétés les plus fréquentes. La sortie doit être une liste de couples `(prop, freq)` triée de manière décroissante
 
 ### Change `count` to `freq`
 
@@ -35,7 +35,7 @@ val q1 = yago
     .takeAsList(10)
 ```
 
-## Retourner la liste des 10 noeuds ayant le plus grand degré sortant
+## Q2: Retourner la liste des 10 noeuds ayant le plus grand degré sortant
 
 __Rappel__ Le degré sortant d'un noeud n est le nombre de triplets où n est le sujet. La sortie doit être une liste de couples (sujet, degré) triée de manière décroissante
 
@@ -50,7 +50,7 @@ val q2 = yago
     .takeAsList(10)
 ```
 
-## Pour chaque propriété, retourner le nombre de sujets distincts d'où elle démarre ainsi que le nombre d'objets distincts où elle arrive. La sortie doit être une liste de tuples `(pro, nb-sujets, nb-objets)`
+## Q3: Pour chaque propriété, retourner le nombre de sujets distincts d'où elle démarre ainsi que le nombre d'objets distincts où elle arrive. La sortie doit être une liste de tuples `(pro, nb-sujets, nb-objets)`
 
 **Attention** Un objet (sujet) peut avoir plusieurs fois la même propriété
 
@@ -73,7 +73,7 @@ val propDegIn = yago.map{case Triple(sujet, prop) => SujetProp(sujet, prop) }
 val q3 = propDegIn.join(propDegreOut, "prop")
 ```
 
-## Encoder la fonction `noeudDegre(d:entier)` qui retourne les noeuds de degrée d
+## Q4: Encoder la fonction `noeudDegre(d:entier)` qui retourne les noeuds de degrée d
 
 Le degré d'un noeud = degré sortant + degré entrant
 `n = n_in + n_out`
@@ -98,15 +98,25 @@ def noeudDegre(d: Int) = {
 
 # Statistiques sur les chemins et co-occurences
 
-## Pour chaque pattern de 2 propriétés qui se suivent, calculer sa fréquence dans les données. 
+## Q1: Pour chaque pattern de 2 propriétés qui se suivent, calculer sa fréquence dans les données. 
 
 Exemple Si le triple pattern `(?x,influences,?y) (?y, livesIn, ?z)` retourne `1000` résultats alor la fréquence du pattern `(influences, livesIn)` vaut `1000`
 
 ```scala
+val t1 = yago
+    .withColumnRenamed("prop", "A")
+    .withColumnRenamed("objet", "J")
+    .select("sujet", "A", "J")
+    
+val t2 = yago
+    .withColumnRenamed("prop", "B")
+    .withColumnRenamed("sujet", "J")
+    .select("objet", "B", "J")
 
+val res = t1.join(t2, "J").groupBy("A", "B").count()
 ```
 
-## Encoder la fonction `cheminNoeudLongueur(noeud: string, len:entier)` qui retourne, pour le sujet `noeud`, tous les chemins démarrant de noeud et ayant la longueur `len`. 
+## Q2: Encoder la fonction `cheminNoeudLongueur(noeud: string, len:entier)` qui retourne, pour le sujet `noeud`, tous les chemins démarrant de noeud et ayant la longueur `len`
 
 La longueur d'un chemin est le nombre de propriétés traversées
 
@@ -114,10 +124,19 @@ La longueur d'un chemin est le nombre de propriétés traversées
 
 ```
 
-## Pour chaque paire de propriétés, donner le nombre de sujets qu'elles partagent. Exemple. Si le triple `pattern (x, livesIn, y) (x, citizenOf, z)` retourne 10 résultat alors les propriétés de la paire `(livesIn, citizenOf)` partagent 10 sujets
+## Q3: Pour chaque paire de propriétés, donner le nombre de sujets qu'elles partagent. 
+Exemple. Si le triple `pattern (x, livesIn, y) (x, citizenOf, z)` retourne 10 résultat alors les propriétés de la paire `(livesIn, citizenOf)` partagent 10 sujets
 
 ```scala
+val q1 = yago
+    .withColumnRenamed("sujet", "x")
+    .select("x", "prop")
 
+val q2 = yago
+    .withColumnRenamed("sujet", "y")
+    .select("y", "prop")
+
+val q3 = q1.join(q2, "prop")
 ```
 
 # Bonus
