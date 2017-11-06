@@ -1,5 +1,3 @@
-# Prep
-
 ## Load `YAGO`
 
 ```scala
@@ -35,21 +33,20 @@ val q1 = yago
     .takeAsList(10)
 ```
 
-## Q2: Retourner la liste des 10 noeuds ayant le plus grand degré sortant
 
 ### Output
 
-``̀`scala
-
+```scala
 scala> yago.groupBy("prop").count.withColumnRenamed("count", "freq").orderBy($"count".desc).takeAsList(10)
-res3: java.util.List[org.apache.spark.sql.Row] = [[<isAffiliatedTo>,1116512], [<playsFor>,772092], [<isCitizenOf>,731207], [<isLocatedIn>,512925], [<hasGender>,486528], [<wasBornIn>,405252], [<actedIn>,242436], [<diedIn>,131001], [<hasWonPrize>,115476], [<graduatedFrom>,112670]]
 
+res3: java.util.List[org.apache.spark.sql.Row] = [[<isAffiliatedTo>,1116512], [<playsFor>,772092], [<isCitizenOf>,731207], [<isLocatedIn>,512925], [<hasGender>,486528], [<wasBornIn>,405252], [<actedIn>,242436], [<diedIn>,131001], [<hasWonPrize>,115476], [<graduatedFrom>,112670]]
 ```
 
 
-## Retourner la liste des 10 noeuds ayant le plus grand degré sortant
+## Q2: Retourner la liste des 10 noeuds ayant le plus grand degré sortant
 
-__Rappel__ Le degré sortant d'un noeud n est le nombre de triplets où n est le sujet. La sortie doit être une liste de couples (sujet, degré) triée de manière décroissante
+
+__Rappel__ Le degré sortant d'un noeud `n` est le nombre de triplets où `n` est le `sujet`. La sortie doit être une liste de couples `(sujet, degré)` triée de manière décroissante
 
 ```scala
 val q2 = yago
@@ -152,8 +149,9 @@ def noeudDegre(d: Int) : java.util.List[String] = {
 
 ### Output
 
-```scala
+```text
 scala> noeudDegre(5)
+
 res23: java.util.List[String] = [<2016_Summer_Paralympics_opening_ceremony>, <2016–17_Men's_FIH_Hockey_World_League_Round_1>, <365_Days_(film)>, <4G_(film)>, <A._Richard_Newton>, <A_Dangerous_Life>, <A_Gamble_for_Love>, <A_Pigeon_Sat_on_a_Branch_Reflecting_on_Existence>, <A_Sister_to_Assist_'Er_(1938_film)>, <A_Whiter_Shade_of_Pale>, <Aaron_Watson>, <Ab_Barik-e_Kuchek>, <Ab_Garm,_Isfahan>, <Ab_Meshkin>, <Ab_Saunders>, <Abbas_Kola,_Babol>, <Abbasabad,_Mamasani>, <Abbasabad-e_Pamzar>, <Abby_Lee_(politician)>, <Abdolabad,_Abyek>, <Abdul_Jabbar_(singer)>, <Abdus_Salam_Award>, <Abi_Nam>, <Abilene,_Kansas>, <Abo_El_Seoud_El_Ebiary>, <Abu_Jadan_Mirza_Avaz>, <Aco_Šopov>, <Adrian_Henger>, <Aegna>, <Afkasht>, <Afra,_Iran>, <Aga_Khan_I>, <Aghuz_Chekeh>, <Agnes_Hewes>, <Ahmadabad,_Deyr>, <Ahmed_Sei...
 scala>
 
@@ -181,7 +179,7 @@ val res = t1.join(t2, "J").groupBy("A", "B").count()
 
 ### Output
 
-```scala
+```text
 +--------------------+--------------------+------+
 |                   A|                   B| count|
 +--------------------+--------------------+------+
@@ -207,7 +205,6 @@ val res = t1.join(t2, "J").groupBy("A", "B").count()
 |        <isKnownFor>|       <isCitizenOf>|    56|
 +--------------------+--------------------+------+
 only showing top 20 rows
-
 ```
 
 
@@ -218,15 +215,16 @@ La longueur d'un chemin est le nombre de propriétés traversées
 ```scala
 def abc(n: String, len: Int) : List[String] = {
     def aux(n: String, len: Int, acc:List[String]) = {
-            if (len == 0) {
-	               return acc
-		               }
-			               yago.where($"sujet" === "<David_Bowie>").select("objet")
-				           } // aux
-					       return aux(n, len, List())
-					       } // Def
-					       
+        if (len == 0) {
+	      return acc
+		}
+        yago.where($"sujet" === "<David_Bowie>").select("objet")
+    } // aux
+    return aux(n, len, List())
+} // Def
 ```
+
+### Output
 
 ## Q3: Pour chaque paire de propriétés, donner le nombre de sujets qu'elles partagent. 
 Exemple. Si le triple `pattern (x, livesIn, y) (x, citizenOf, z)` retourne 10 résultat alors les propriétés de la paire `(livesIn, citizenOf)` partagent 10 sujets
@@ -271,9 +269,7 @@ val q3 = q1.join(q2, "prop")
 |<hasOfficialLangu...|<Aargau>|<German_language>|           <Adygea>|  <Russian_language>|
 +--------------------+--------+-----------------+-------------------+--------------------+
 only showing top 20 rows
-
 ```
-
 
 # Bonus
 
