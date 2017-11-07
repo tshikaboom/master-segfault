@@ -1,14 +1,35 @@
 # Question 1 Créez dans votre projet Eclipse un package tme1 et copiez-y dans le dossier correspondant les fchiers fournis dans vos ressources  TME. Rafraîchissez et assurez-vous que la compilation se passe bien (absence de croix rouge)
 
-# Question 2 Les fchiers qui vous ont été fournis implémentent un protocole applicatif (ApplicativeProtocol.java) qui se base sur des primitives de difusion. Déterminez ce que fait ce proto cole
+ok
 
-# Question 3 Analysez le code qui vous a ete fourni et produisez un fichier de configuration peersim de maniere a:
+# Question 2 Les fchiers qui vous ont été fournis implémentent un protocole applicatif (`ApplicativeProtocol.java`) qui se base sur des primitives de difusion. Déterminez ce que fait ce protocole
+
+Broadcasts `plus` and `fois`. Either adds or multiplies, broadcasts sends out all the messages.
+
+# Question 3 Analysez le code qui vous a ete fourni et produisez un fichier de configuration `peersim` de maniere a:
 
 ## d'avoir une graine aleatoire a la valeur 5 
 
+`random.seed 5`
+
 ## ce que le protocole applicatif fonctionne sur 5 noeurs en se basant sur le protocol de diffusion basique (`BasicBroadcast.java`)
 
+```bash
+SIZE 5
+network.size SIZE
+
+protocol.emitterProtocol BasicBroadcast
+```
+
 ## utiliser une couche transport fiable (prendre `UniformRandomTransport` de l'API `peersim`) et d'avoir une latence reseau comprise entre 5 et 500 unites de temps 
+
+```
+# parameters of message transfer
+# delay values here are relative to cycle length, in percentage,
+# eg 50 means half the cycle length, 200 twice the cycle length, etc.
+MINDELAY 500
+MAXDELAY 50000
+```
 
 ## que le module d'initialisation soit la classe `Initialisation` 
 
