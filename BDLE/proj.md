@@ -1,6 +1,9 @@
+# Rudek Michal - BDLE_Miniprojet - M2SAR 17/18
+
 ## Load `YAGO`
 
 ```scala
+import org.apache.spark.sql._
 case class Triple(sujet: String, prop: String, objet: String)
 
 val yagoFile = "/tmp/BDLE/dataset/yagoFacts5M.txt"
@@ -10,18 +13,11 @@ val yago = sc.textFile(yagoFile).
   map(tab => Triple(tab(0), tab(1), tab(2))).toDS()
 
 yago.persist
-yago.count
 ```
 
 # Statistiques de base
 
 ## Q1: Retourner la liste des 10 propriétés les plus fréquentes. La sortie doit être une liste de couples `(prop, freq)` triée de manière décroissante
-
-### Change `count` to `freq`
-
-```scala
-withColumnRenamed("count", "freq")
-```
 
 ### Reponse
 
@@ -40,6 +36,22 @@ val q1 = yago
 scala> yago.groupBy("prop").count.withColumnRenamed("count", "freq").orderBy($"count".desc).takeAsList(10)
 
 res3: java.util.List[org.apache.spark.sql.Row] = [[<isAffiliatedTo>,1116512], [<playsFor>,772092], [<isCitizenOf>,731207], [<isLocatedIn>,512925], [<hasGender>,486528], [<wasBornIn>,405252], [<actedIn>,242436], [<diedIn>,131001], [<hasWonPrize>,115476], [<graduatedFrom>,112670]]
+
+
++----------------+-------+
+|            prop|   freq|
++----------------+-------+
+|<isAffiliatedTo>|1116512|
+|      <playsFor>| 772092|
+|   <isCitizenOf>| 731207|
+|   <isLocatedIn>| 512925|
+|     <hasGender>| 486528|
+|     <wasBornIn>| 405252|
+|       <actedIn>| 242436|
+|        <diedIn>| 131001|
+|   <hasWonPrize>| 115476|
+| <graduatedFrom>| 112670|
++----------------+-------+
 ```
 
 
@@ -63,6 +75,21 @@ val q2 = yago
 
 ```scala
 res6: java.util.List[org.apache.spark.sql.Row] = [[<Ilaiyaraaja>,878], [<Prem_Nazir>,471], [<United_States>,456], [<Deva_(composer)>,440], [<Adoor_Bhasi>,383], [<M._S._Viswanathan>,378], [<Mammootty>,360], [<United_Kingdom>,345], [<Laxmikant–Pyarelal>,324], [<Mohanlal>,314]]
+
++--------------------+-----+
+|               sujet|degre|
++--------------------+-----+
+|       <Ilaiyaraaja>|  878|
+|        <Prem_Nazir>|  471|
+|     <United_States>|  456|
+|   <Deva_(composer)>|  440|
+|       <Adoor_Bhasi>|  383|
+| <M._S._Viswanathan>|  378|
+|         <Mammootty>|  360|
+|    <United_Kingdom>|  345|
+|<Laxmikant–Pyarelal>|  324|
+| <Jagathy_Sreekumar>|  314|
++--------------------+-----+
 ```
 
 
@@ -74,17 +101,20 @@ res6: java.util.List[org.apache.spark.sql.Row] = [[<Ilaiyaraaja>,878], [<Prem_Na
 case class PropObjet(prop: String, objet: String)
 case class SujetProp(sujet: String, prop: String)
 
-val propDegOut = yago.map{case Triple(sujet, prop, objet) => PropObjet(prop, sujet) }.
-    distinct.
-    groupBy("prop").
-    count.
-    withColumnRenamed("count", "nb_objects")
+val degOut = yago
+    .map{case Triple(sujet, prop, objet) 
+        => PropObjet(prop, objet) }
+    .distinct
+    .groupBy("prop")
+    .count
+    .withColumnRenamed("count", "nb_objects")
 
-val propDegIn = yago.map{case Triple(sujet, prop, objet) => SujetProp(sujet, prop) }.
-    distinct.
-    groupBy("prop").
-    count.
-    withColumnRenamed("count", "nb_sujets")
+val degIn = yago.map{case Triple(sujet, prop, objet) 
+        => SujetProp(sujet, prop) }
+    .distinct
+    .groupBy("prop")
+    .count
+    .withColumnRenamed("count", "nb_sujets")
 
 val q3 = propDegIn.join(propDegOut, "prop")
 
@@ -98,31 +128,30 @@ val q3 = yago.groupBy("prop").agg(count(countDistinct("sujet"), countDistinct("o
 ### Output
 
 ```scala
-+--------------------+---------+----------+
-|                prop|nb_sujets|nb_objects|
-+--------------------+---------+----------+
-|<hasOfficialLangu...|     1177|      1177|
-|    <isInterestedIn>|      781|       781|
-|         <dealsWith>|      262|       262|
-|       <isLocatedIn>|   114649|    114649|
-|<hasAcademicAdvisor>|     2318|      2318|
-|        <isKnownFor>|       68|        68|
-|       <isCitizenOf>|   488398|    488398|
-|        <influences>|     4517|      4517|
-|           <exports>|      167|       167|
-|           <actedIn>|    35223|     35223|
-|       <hasWonPrize>|    58927|     58927|
-|         <wasBornIn>|   405252|    405252|
-|     <isConnectedTo>|     1927|      1927|
-|          <hasChild>|      839|       839|
-|    <isPoliticianOf>|    20481|     20481|
-|        <hasCapital>|     2012|      2012|
-|     <graduatedFrom>|    77240|     77240|
-|           <created>|    26547|     26547|
-|       <hasNeighbor>|      151|       151|
-|            <edited>|     1110|      1110|
-+--------------------+---------+----------+
-only showing top 20 rows
++--------------------+---------+---------+
+|                prop|nb_sujets|nb_objets|
++--------------------+---------+---------+
+|<hasOfficialLangu...|     1177|      134|
+|    <isInterestedIn>|      781|      160|
+|         <dealsWith>|      262|      204|
+|       <isLocatedIn>|   114649|    30544|
+|<hasAcademicAdvisor>|     2318|      527|
+|        <isKnownFor>|       68|       56|
+|       <isCitizenOf>|   488398|      451|
+|        <influences>|     4517|     1967|
+|           <exports>|      167|       58|
+|           <actedIn>|    35223|    58160|
+|       <hasWonPrize>|    58927|     2271|
+|         <wasBornIn>|   405252|    32467|
+|     <isConnectedTo>|     1927|     1733|
+|          <hasChild>|      839|      494|
+|    <isPoliticianOf>|    20481|     1065|
+|        <hasCapital>|     2012|     1692|
+|     <graduatedFrom>|    77240|     3153|
+|           <created>|    26547|    43816|
+|       <hasNeighbor>|      151|      152|
+|            <edited>|     1110|    16730|
++--------------------+---------+---------+
 
 ```
 
@@ -142,13 +171,19 @@ Le degré d'un noeud = degré sortant + degré entrant
 def noeudDegre(d: Int) : java.util.List[String] = {
     val dOut = yago.groupBy("sujet").count.withColumnRenamed("count", "dOut")
     val dIn = yago.groupBy("objet").count.withColumnRenamed("count", "dIn")
-    val dgs = dIn.join(dOut, $"sujet" === $"objet", "full_outer").
-    	na.
-        fill(0, Array("dIn", "dOut")).
-        select($"sujet", $"objet", $"dIn" + $"dOut").
-        withColumnRenamed("(din + dOut)", "deg").
-        filter($"deg" === d).
-        map(row => if (row.getAs[String](0) == null) row.getAs[String](1) else row.getAs[String](0))
+    val dgs = dIn
+            .join(dOut, $"sujet" === $"objet", "full_outer")
+            .na
+            .fill(0, Array("dIn", "dOut"))
+            .select($"sujet", $"objet", $"dIn" + $"dOut")
+            .withColumnRenamed("(din + dOut)", "deg")
+            .filter($"deg" === d)
+            .map(row => 
+                if (row.getAs[String](0) == null)
+                    row.getAs[String](1) 
+                else 
+                    row.getAs[String](0))
+
     return dgs.takeAsList(dgs.count.toInt)
 }
 ```
@@ -238,61 +273,41 @@ Exemple. Si le triple `pattern (x, livesIn, y) (x, citizenOf, z)` retourne 10 r�
 ```scala
 val q1 = yago
     .withColumnRenamed("sujet", "x")
-    .select("x", "prop")
+    .select("x", "prop1")
 
 val q2 = yago
     .withColumnRenamed("sujet", "y")
-    .select("y", "prop")
+    .select("y", "prop2")
 
-val q3 = q1.join(q2, "prop")
+val q3 = q1.join(q2, "sujet").where($"prop1" < $"prop2").distinct.
+  groupBy("prop1", "prop2").count
 ```
 
 ### Output
 
 ```scala
-+--------------------+--------+-----------------+-------------------+--------------------+
-|                prop|   sujet|            objet|              sujet|               objet|
-+--------------------+--------+-----------------+-------------------+--------------------+
-|<hasOfficialLangu...|<Aargau>|<German_language>|           <Aargau>|   <German_language>|
-|<hasOfficialLangu...|<Aargau>|<German_language>|<Abbasid_Caliphate>|            <Arabic>|
-|<hasOfficialLangu...|<Aargau>|<German_language>|<Abbasid_Caliphate>|  <Aramaic_language>|
-|<hasOfficialLangu...|<Aargau>|<German_language>|<Abbasid_Caliphate>|  <Berber_languages>|
-|<hasOfficialLangu...|<Aargau>|<German_language>|<Abbasid_Caliphate>| <Georgian_language>|
-|<hasOfficialLangu...|<Aargau>|<German_language>|<Abbasid_Caliphate>|  <Turkic_languages>|
-|<hasOfficialLangu...|<Aargau>|<German_language>|<Abbasid_Caliphate>|    <Greek_language>|
-|<hasOfficialLangu...|<Aargau>|<German_language>|<Abbasid_Caliphate>| <Armenian_language>|
-|<hasOfficialLangu...|<Aargau>|<German_language>|<Abbasid_Caliphate>|   <Hebrew_language>|
-|<hasOfficialLangu...|<Aargau>|<German_language>|         <Abkhazia>|  <Russian_language>|
-|<hasOfficialLangu...|<Aargau>|<German_language>|           <Acadia>|   <French_language>|
-|<hasOfficialLangu...|<Aargau>|<German_language>|   <Aceh_Sultanate>|            <Arabic>|
-|<hasOfficialLangu...|<Aargau>|<German_language>|   <Aceh_Sultanate>|    <Malay_language>|
-|<hasOfficialLangu...|<Aargau>|<German_language>|<Achaemenid_Empire>|  <Persian_language>|
-|<hasOfficialLangu...|<Aargau>|<German_language>|<Aden_Protectorate>|<Ottoman_Turkish_...|
-|<hasOfficialLangu...|<Aargau>|<German_language>|<Aden_Protectorate>|            <Arabic>|
-|<hasOfficialLangu...|<Aargau>|<German_language>|<Aden_Protectorate>|  <English_language>|
-|<hasOfficialLangu...|<Aargau>|<German_language>|<Aden_Protectorate>|  <Persian_language>|
-|<hasOfficialLangu...|<Aargau>|<German_language>|           <Adjara>| <Georgian_language>|
-|<hasOfficialLangu...|<Aargau>|<German_language>|           <Adygea>|  <Russian_language>|
-+--------------------+--------+-----------------+-------------------+--------------------+
-only showing top 20 rows
-```
-
-# Bonus
-
-## Dans un premier temps, compléter les triplets de `dbpediaShortName8M` avec le type de leurs noeuds qui se trouvent dans `dbpediaShortNameTypeFor8M.txt`
-
-```scala
-
-```
-
-## Pour chaque type, retourner son domaine, i.e le nombre de sujets distincts ayant ce type
-
-```scala
-
-```
-
-## Pour chaque type, retourner son co-domaine, i.e le nombre d'objets distincts ayant ce type
-
-```scala
-
++--------------------+----------------+------+
+|               prop1|           prop2| count|
++--------------------+----------------+------+
+|     <graduatedFrom>|     <hasGender>| 76967|
+|    <isAffiliatedTo>|       <worksAt>|    26|
+|            <diedIn>|        <edited>|   314|
+|           <exports>|          <owns>|    34|
+|    <isAffiliatedTo>|     <wasBornIn>|210562|
+|    <isPoliticianOf>|       <worksAt>|    21|
+|           <created>|        <edited>|   282|
+|         <hasGender>|          <owns>|   445|
+|<hasAcademicAdvisor>|   <isMarriedTo>|     6|
+|           <created>|      <directed>|  6739|
+|          <directed>|     <hasGender>| 11106|
+|            <diedIn>|    <isKnownFor>|    38|
+|     <graduatedFrom>| <wroteMusicFor>|   225|
+|            <diedIn>|       <worksAt>|  3945|
+|           <exports>|    <hasCapital>|   134|
+|       <isCitizenOf>|    <isKnownFor>|    65|
+|         <dealsWith>|          <owns>|    43|
+|          <hasChild>|       <livesIn>|    13|
+|     <graduatedFrom>|<isInterestedIn>|   325|
+|         <hasGender>|   <hasWonPrize>| 58040|
++--------------------+----------------+------+
 ```
