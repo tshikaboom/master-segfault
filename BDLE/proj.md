@@ -116,7 +116,13 @@ val degIn = yago.map{case Triple(sujet, prop, objet)
     .count
     .withColumnRenamed("count", "nb_sujets")
 
-val q3 = degIn.join(degOut, "prop")
+val q3 = propDegIn.join(propDegOut, "prop")
+
+// Alternative solution:
+
+val newNames = Seq("pro", "nb-sujets", "nb-objects")
+val q3 = yago.groupBy("prop").agg(count(countDistinct("sujet"), countDistinct("objet")).toDF(newNames:_*))
+
 ```
 
 ### Output
