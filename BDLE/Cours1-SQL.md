@@ -1,21 +1,3 @@
-# SQL
-
-## Definitions
-
-- `OLTP` - Online Transaction Processing
-    - Bien adaptes au stockage
-    - Mal adaptes a la gestion d'info
-- `TPC-H` - Transaction Processing Performance Council TPC-H is a Decision Support Benchmark
-
-## Aggegate
-
-- Multidimentional model
-    - `mesure` critere d'evaluation du processus decisionnel (chiffre d'affaires, quantite en stock)
-    - `dimension` sujet d'ineteret (temps, produit, localisation)
-    - `hierarchie` decomposition d'une dimension en une arboresence de niveaux (temps en mois, trimestre, annee)
-    - `attribut` caracteristique d'un niveau d'une hierarchie (prix d'un article)
-    - `agregat` resultat d'un indicateur par rapport a des niveaux (chiffre d'affaires du mois)
-
 ## Aggregation SQL
 
 ### `Group by`
@@ -90,7 +72,7 @@ Aggregation sur `n+1` niveau de regroupements:
 - `Nn` : group by `d1`
 - `Nn+1` : un seul groupe = la table des faits toute entiere
 
-###### `Rollup` partiel
+##### `Rollup` partiel
 
 Moins de niveaux
 
@@ -187,3 +169,55 @@ GROUP BY GROUPING SETS (a, ROLLUP(b,c))
 GROUP BY a UNION ALL
 GROUP BY ROLLUP (b, c
 ```
+
+## Fonctions de classement
+
+- `rank()` classement par position
+- `dense-rank()` classement par valeur
+
+Syntax: 
+```sql
+rank() over (order by ...)
+```
+
+`Order by` indique la mesure sur laquelle faire le classement
+
+Classement sur des groupes:
+```sql
+rank() over (partition by X order by Y)
+```
+Le classement de `Y` s'effecture sur chaque partition de `X`
+
+## Joins
+
+### Definitions
+
+- `inner join` : pour qu'un n-uplet soit dans le resultat, il faut que la valeur de l'attribut de jointure apparaisse dans les deux tables
+- `outer join` : tous les n-uplets apparaissent dans le resultat, avec une valeur `null` pour les attributs lorsque les 2 valeurs ne joignent pas
+- `right outer join` : tous les n-uplets de la table de droite apparaissent dans le resultat
+- `left outer join` : tous les n-uplets de la table de gauche apparaissent dans le resultat
+
+### Examples
+
+#### Generation d'un n-uplet pour les produits n'ayant pas ete vendus certains mois, en mettant la valeur 0 pour les ventes dans ce cas
+
+```sql
+Select v2.month, v1.product-name, nvl(v1.sales, 0)
+FROM 
+    (SELECT t.month, p.product-name, SUM(f.purchase-price) as sales
+    FROM PURCHASE f, TIME t, PRODUCT p
+    WHERE f.time-key = t.time-key
+        AND f.product-id = p.product-id
+    GROUP BY p.Product-name, t.month)
+    v1 PARTITION BY (product-name)
+RIGHT OUTER JOIN
+    (SELECT distinct t.month
+    FROM TIME t) v2
+    ON v1.month = v2.month)
+```
+
+- `v1` : vente des produits par mois
+- `v2` valeurs distinctes des mois
+- `partition by (product-name)` : prend le resultat de `v1` et partitionne par nom de produit
+- `right outer join` : fait la jointure externe en prenant toutes les valeurs des mois `(RIGHT)`
+- `nv1(v1.sales, 0)` : insere la valeur `0` (au lieu de `NULL`) pour les n-uplets n'ayant pas de valeur de jointure avec la table de gauche
