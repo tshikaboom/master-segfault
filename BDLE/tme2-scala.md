@@ -1,3 +1,11 @@
+- [Exo1](#exo1)
+    - [Q1.1 `maxEntiers`](#q11-maxentiers)
+    - [Q1.2 `scEntiers`](#q12-scentiers)
+    - [Q1.3 `moyEntiers`](#q13-moyentiers)
+    - [Q2.1](#q21)
+        - [Calculer pour l'année 2009 le maximum de ses températures](#calculer-pour-lann%C3%A9e-2009-le-maximum-de-ses-temp%C3%A9ratures)
+        - [Idem pour la moyenne de ces température](#idem-pour-la-moyenne-de-ces-temp%C3%A9rature)
+
 # Exo1
 
 ## Q1.1 `maxEntiers`
