@@ -6,6 +6,8 @@ Comme vous l'aurez compris, on utilise le Markdown ici, c'est pas la mort à app
 
 Pour l'instant, le mieux serait de passer par pull request et voir déjà comment on réagit à cela.
 
+Y'a un site [ici-même](https://tshikaboom.github.io/master-segfault/) (où le Markdown parseur d'ailleurs a beaucoup de mal)
+
 En ce moment, on a donc des débuts de
 - ARA
   - [1. Broadcasts](ARA/Part1-Broadcasts.md)
