@@ -11,13 +11,19 @@ En ce moment, on a donc des débuts de
   - [1. Broadcasts](ARA/Part1-Broadcasts.md)
   - [2. Mémoire partagée](ARA/Part2-SharedMemory.md)
   - [3. Consensus](ARA/Part3-Consensus.md)
+  - [4. Checkpointing](ARA/Part4-Checkpointing.md)
+  - [5. PeerSim](ARA/Part5-SimPeerSim.md)
+  - [TD Fautes](ARA/TD-FD.md)
 - BDLE
-  - [TME 1](BDLE/tme1.md)
+  - [1. SQL](BDLE/Cours1-SQL.md)
+  - [2. Scala](BDLE/Cours2-Scala.md)
+  - [TME 1 SQL](BDLE/tme1-sql.md)
   - [TME 2 Scala](BDLE/tme2-scala.md)
 - NMV
   - [1. Les principes de git](NMV/CS1-Git.md)
   - [2. Les principes du parallélisme](NMV/CS2-Parallelism.md)
   - [3. Les locks](NMV/CS3-Locks.md)
+  - [4. Queues et files concurrentes](NMV/CS4-ConcurrentQueuesAndStacks.md)
   - [TP Garbage Collector](NMV/TD1-GC.md)
 - ARCHI3
   - [Cours 2](ARCHI3/archicours2.md)
