@@ -12,7 +12,7 @@ En ce moment, on a donc des débuts de
   - [2. Mémoire partagée](ARA/Part2-SharedMemory.md)
   - [3. Consensus](ARA/Part3-Consensus.md)
   - [4. Checkpointing](ARA/Part4-Checkpointing.md)
-  - [5. PeerSim](ARA/Part5-SimPeerSim.md)
+  - [TME PeerSim](ARA/PeerSim/tme1.md)
   - [TD Fautes](ARA/TD-FD.md)
 - BDLE
   - [1. SQL](BDLE/Cours1-SQL.md)
