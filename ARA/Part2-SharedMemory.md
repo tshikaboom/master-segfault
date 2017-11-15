@@ -1,10 +1,14 @@
 # Shared memory and consistency models
 
 ## Mutual exclusion
+
 ### Peterson algorithm
+
 Originally syncs two threads, has been expanded to an arbitrary number of processes. However the size of the array is exponential to the number of processes.  
 Informally, consider the case where T1 enters the critical section. Then the loop condition must have been false, which means either flag2 was false or victim was set to 2. If flag2 was false, then T2 was not even trying to enter the critical section. If victim was set to 2, then T2 was trying to enter the critical section, but T1 won the race.
+
 #### Code
+
 ```c
 //T1                           T2
 flag1 = true                 flag2 = true
@@ -16,14 +20,19 @@ while (flag2 &&              while (flag1 &&
 flag1 = false                flag2 = false
 ```
 Each thread begins by setting its flag to `true`. It then sets the `victim` variable to its thread id, and waits until either the other thread's flag is `false` or `victim` is set by the other thread.
+
 #### ELI5
+
 Be a gentleman, let people go through the door before going yourself.
 
 ### Lamport Bakery Algorithm
+
 N-processes. Uses two shared variables, _flag[2]_ and _turn_. Starvation-free.
 - _flag_ at 1 indicates that the process wants to enter the CS
 - _turn_ holds the id of the process whose turn it is
+
 #### Code
+
 ```c
 // Init
 choosing[1..n] = 0;
@@ -47,6 +56,7 @@ timestamp[i]=0
 ```
 
 ## Linearizibility
+
 For any concurrent execution, there is a total order of the operations such that each read to a location (_variable_) returns the value written by the last write to this location (_variable_) that precedes in the ordered. Total order.
 
 Other more relaxed models exist
@@ -56,37 +66,83 @@ Other more relaxed models exist
 - weak, etc...
 
 ### Specs
+
 - The total order must be consistent with the temporal order of operations
-- Each operation _op(Read or Write)_ has an _invocation_ and _response_ events  
+- Each operation _op(Read or Write)_ has an _invocation_ and _response_ events
+
 An execution in global time is viewed as sequence _seq_ of such invocations and responses
 
+## Sequential
+
+- The result of any execution is the same as if all operations of the processors were executed in some sequential order
+- The operation of each individual processor appear in this sequence in the local program order
+- Any interleaving of the operations from the different processes is possible. But all processors must see the same interleaving.
+- Even if two operations from different processes (on the same or different variables) do not overlap in a global time scale, they may appear in reverse order in the common sequential order seen by all
+
+![shm-seq](./images/shm-sequential.png)
+
+![shm-nonseq](./images/shm-nonseq.png)
+
+## Causal
+
+Causal relation is:
+- Local order of events of a process define local causal order
+- 
+- A `write` operation causally precedes a `read` operation of another process if the `read` returns the value written by the `write` operation
+- The transitive operation of the baove two relations defines the global causal order
+
+And then:
+
+- Only `writes` that are `causally related` must be seen by all processes in the same order. Concurrent writes must be seen in a different order.
+
+![shm-causal1](./images/shm-causal1.png)
+![shm-causal1](./images/shm-causal2.png)
+![shm-causal1](./images/shm-causal3.png)
+
+## PRam
+
+`Writes` done by a single processor are received by all other processes in the order in which they were issued but `writes` from different processes may be seen in a different order by different processes
+
+- Only the local causality relation needs to be seen by other processes
+- Writes from the same process must be seen b the others in order they were issued
+
+![shm-pram1](./images/shm-pram1.png)
+![shm-pram1](./images/shm-pram2.png)
+
 ## Registers
+
 Abstraction of distributed shared memory by Lamport
 
 ### Safe register
-- _Read_ does not overlap with a _write_  
+
+- _Read_ does not overlap with a _write_
 _Read_ returns the most recently written value
-- _Read_ overlaps with a _write_  
+- _Read_ overlaps with a _write_
 _Read_ returns any value that the register could possibly have
 
-
 ### Regular register
+
 It is a _safe_ register and:
 - if _Read_ overlaps with a _write_ then _read_ returns either the most recent value of a concurrently written value
 
 ### Atomic register
+
 is _regular_ and
 - _read_ and _write_ that overlap are _linearizable_. There exists an equivalent totally ordered sequentilal execution of them
 
 # TD
+
 ## 1.1 Est-ce que la variable timestamp est bornée? Justifiez
+
 Non borne. Si les processus reviennent on est pas oblige de retourner a 0
 
 ## 1.X Deux processus I et j peuvent avoir le timestamp: timestamp[i]=timestamp[j]. En se basant sur le code de la fonction max ci dessus expliquez comment cette égalité peut arriver. Est-t-elle un problème? Justifier.
+
 C'est pas atomique, on peut se retrouver dans la même instruction.
 Entre SC n'est pas protégée contre plusieurs accès concurrents alors entre 2 instructions on se retrouve avec 2 processus -> même timestamp à la fin / non c'est pas un problème car L6 comparaison entre les indices
 
 ## 1.2 En donnant un scenario d'exécution, expliquez pourquoi l'implémentation ci-dessus de la fonction max toute seule n'assure pas la sureté de l'algorithme de la boulangerie?
+
 ```
 P1 P2 P3
 	- Timestamp[2] = timestamp[3]=1
@@ -101,6 +157,7 @@ P1 P2 P3
 Deux processus peuvent avoir la même valeur du timestamp.
 
 ## 1.3 Corrigez l'algorithme
+
 ```
 max () {
     int MAX=0;
@@ -113,11 +170,14 @@ max () {
     timestamp[i] = 1+MAX;
 }
 ```
+
 ## 1.4 Est-ce que les phrases sont-elles vraies? Justifiez votre réponse.
-1 Vraie  
+
+1 Vraie
 2 Non, ts[i]=ts[k] avec i<k
 
 ## 1.5 Pourquoi l'algorithme de la boulangerie a-t-il besoin du tableau choosing? Quel problème entrainerait l'élimination de la ligne 5 (boucle d'attente sur la variable choosing de l'algorithme)?
+
 Pour des raisons de sureté attendre le choix du TS après le comp. C'est une sorte de section critique, barrière en C, bla.  
 i exécute Ph1 sort avec ts=1  
 K vient de rentrer en ph1, donc ts[k]=0  
@@ -125,6 +185,7 @@ i va en ph2 et ph3 donc en SC
 K reprend la main - son ts[k] avec le max =1, il arrive en ph2, ts[k]=ts[i], et k<i donc aussi SC.
 
 ## 1.6 Donnez le code d'un tel algorithme
+
 (1.7/2017, I guess)
 ```
 Read-modify-write
@@ -142,9 +203,8 @@ Exit SC:
         read-modify-write(valid, int)
 ```
 
-
-
 ## 1.7
+
 ```
 read_modify_write
 	register int ticket = 0;
@@ -160,9 +220,10 @@ read_modify_write
 
 	ExitSC:
 		read_modify_write(valid, inc);
-
 ```
+
 ## 1.8
+
 ```
 	register int ticket = 0;
 	atomic bit valid[N] (valid[0] = 1; valid[2..N-1] = 0);
@@ -174,7 +235,9 @@ read_modify_write
 		valid[ticket_i] = 0;
 		valid[(ticket_i+1)%N] = 1;
 ```
+
 ## Exercice 1.9
+
 ```
 On a ticket = 0 et valid = [1 0 0 0]
 
@@ -193,8 +256,6 @@ Proc_j: ExitSC
 	ticket = 2
 	valid = [0 0 1 0]
 ```
-
-
 
 ## Exercice 2
 
@@ -216,13 +277,15 @@ Proc_j: ExitSC
     }
 ```
 
-```
+```bash
 bool Read(R){
     val = R';
     return(val);
 }
 ```
-### 2.1 Quel modele de coherence?  
+
+### 2.1 Quel modele de coherence?
+
 // TODO: Add image
 Pas de overlap entre `p2.write(x,3)` et `p3.read(x)`
 
@@ -232,6 +295,7 @@ Pas de overlap entre `p2.write(x,3)` et `p3.read(x)`
 Sequence possible: `p2.write(x, 1), p1.read(x)=1, p1.write(y,2), p3.write(y,4), p2.read(x)=1, p1.read(y)=4, p2.write(x, 3)`
 
 ### 2.2 Writes causally related
+
 `write(x, 1) -> write(x, 3)`  
 `write(x, 1) -> write(y, 2)`  
 `write(x, 3) -> write(y, 4)`  
@@ -239,6 +303,7 @@ Par transitivite:
 `write(x, 1) -> write(y, 4)`
 
 ### 2.3 Sequential? Causal? PRAM?
+
 Causal : les operations d'ecriture liees causalement sont vues dans le meme ordre par tous les processus  
 Causal implique PRAM
 
@@ -247,6 +312,7 @@ Pas de coherence sequentielle, contre-exemple:
 `p3: w(y, 4), r(y)=2`
 
 ### 2.4 Sequential au lieu de linearizability
+
 Voir schema Linearizibility slide 14 - modele sequentiel  
 Pas strict, car pas de overlap entre `p1.write(x, 1)` et `p2.read(x)=0`
 
