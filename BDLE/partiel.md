@@ -1,8 +1,18 @@
-# [Sujet](http://www-bd.lip6.fr/wiki/_media/site/enseignement/master/bdle/examen2016.pdf)
+## Ressources
 
-## Helps
+- [Algebre Spark ou Dataset (Nov16)](http://www-bd.lip6.fr/wiki/_media/site/enseignement/master/bdle/examen2016.pdf)
+- [Spark - KV Store (Fev15)](http://www-bd.lip6.fr/wiki/_media/site/enseignement/master/bdle/bdle_exam_fevrier2015.pdf)
+- [Spark (Fev15)](http://www-bd.lip6.fr/wiki/_media/site/enseignement/master/bdle/examen_2015_aspark.pdf)
+
+## Stuff
 
 ### Joins
+
+
+
+## Chains
+
+### ExoZero
 
 ```scala
 scala> R // liste des tuples  (A, B, C)
@@ -16,9 +26,9 @@ x(0) // acces a l'element 0 de l'array x
 x._1 // acces a l'element 1 du tuple x
 ```
 
-## Exprimer dans l'algebre RDD
+### Ex1
 
-![partiel](./images/partiel.png)
+![partiel2016](./images/partiel.png)
 
 ```scala
 scala> val triples = sc.textFile("...").map(x=>x.split(",")).map(x=>(x(0),x(1),x(2)))
@@ -28,37 +38,37 @@ scala> val p2 = triples.filter{case (s,p,o) => p.contains("p2")}
 scala> val p3 = triples.filter{case (s,p,o) => p.contains("p3")}
 
 > (q1) select ?x ?z where { ?x p0 ?y . ?y p1 ?w. ?w p2 ?z}
+>>> x -> y
+>>> y -> w
+>>> w -> z
 
-// Links p0 with p1
-val tq1 = p0.map{ case (x, p0, y) => (y, (x, p)) }.join(p1.map{ case (y, p, w)=>(y, (w, p))})
-// ^ produit une RDD de la forme (y, (x, p0), (w, p1))
+val q1 = p0.
+    map{ case(x, p0, y)=>(y,x) }.
+    join(p1.map{ case(y, p1, w) => (y,w) }). // J'ai (y, (x, w))
+    map{ case(y,(x,w)) => (w, (x, y)) }.     // J'ai (w, (x, y))
+    join(p2.map{ case(w, p, z) => (w, z) }). // J'ai (w, (x, y), z)
+    map{ case(w, (x, y), z) => (x, z) }
 
-val tq2 = p1.map{ case(y, p, w) => (w, (y, p))}.join(p2.map{ case (w, p, z) => (w, (z, p))})
-// ^ produit une RDD de la forme (w, (y, p1), (z, p2))
-
-val tq2_alt = tq1.map{(y, (x, p0), (w, p1)) => (w, (x, p0, y, p1)}.join( p2.map{_ => _} )
-
-val q1 = 
-// ^ produit une RDD de la forme
 
 > (q2) select ?x ?z where { ?x p2 ?z.  ?y p1 ?x. ?x p3 ?w}
+>>> x -> z
+>>> y -> x
+>>> x -> w
 
-val q2 = 
 
+val q2 = p2.
+    map{ case(x, p1, z) => (x, z) }.
+    join(p1.map{ case(y, p1, x) => (x, y) } ). // J'ai (x, (z, y)).
+    join(p3.map{ case(x, p3, w) =>(x, w) }).   // J'ai (x, (z, y), w)
+    map( case (x, (z,y), w) => (x, z))
 ```
 
-## Chains
-
-### Ex1
-
-```sql
-select ?p ?s
-where {?p studiedAt ?u. ?p supervisedBy ?s. ?s studiedAt ?u}
-```
-
-gives:
+### Ex2
 
 ```scala
+select ?p ?s
+where {?p studiedAt ?u. ?p supervisedBy ?s. ?s studiedAt ?u}
+
 val q2 = studiedAt.
     map{case(p,sat,u)=>(p,u)}.
     join(supervisedBy.map{case(p,sby,s)=>(p,s)}).
@@ -68,16 +78,12 @@ val q2 = studiedAt.
     filter{case(p,u,s,us)=>u==us}.map{case(p,u,s,us)=>(p,s)}
 ```
 
-### Ex2
-
-```sql
-select ?p ?s
-where ?p studiedAt ?u. ?p supervisedBy ?s. ?s studiedAt ?u
-```
-
-gives
+### Ex3
 
 ```scala
+select ?p ?s
+where ?p studiedAt ?u. ?p supervisedBy ?s. ?s studiedAt ?u
+
 val q2 = studiedAt.
     map{case(p,sat,u)=>(p,u)}.
     join(supervisedBy.map{case(p,sby,s)=>(p,s)}).
