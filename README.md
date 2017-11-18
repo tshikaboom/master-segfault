@@ -16,11 +16,13 @@ En ce moment, on a donc des débuts de
   - [4. Checkpointing](ARA/Part4-Checkpointing.md)
   - [TME PeerSim](ARA/PeerSim/tme1.md)
   - [TD Fautes](ARA/TD-FD.md)
+  - [Ébauche de l'exam/1/2009](ARA/Partiel.md)
 - BDLE
   - [1. SQL](BDLE/Cours1-SQL.md)
   - [2. Scala](BDLE/Cours2-Scala.md)
   - [TME 1 SQL](BDLE/tme1-sql.md)
   - [TME 2 Scala](BDLE/tme2-scala.md)
+  - [Quelques notes de partiels?](BDLE/partiel.md)
 - NMV
   - [1. Les principes de git](NMV/CS1-Git.md)
   - [2. Les principes du parallélisme](NMV/CS2-Parallelism.md)
