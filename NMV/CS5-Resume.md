@@ -32,7 +32,7 @@ Problemes monocoeur:
 1. Stop les Interruptions
 
 ```c
-local_ing_disable/enable()
+local_irq_disable/enable()
 ```
 
 2. Desactiver la preemption
@@ -48,18 +48,18 @@ Linux preemptif a partir de 2.6
 
 ### Spinlock (je bloque tout)
 
-> --
-- Cause contention memoire
-- Protocole de cache avec protocole moisy (?) - lourd aussi pour les reads que les writes
-
-> ++
+#### Inconvénients
+- Locks à attente active.
+- On teste une même case mémoire tout le temps => contention memoire
+- Sur les caches avec protocole MOESI - lourd aussi pour les reads que les writes
+car toute lecture diffuse des requêtes sur le bus (état S == Shared de MOESI)
 - Dans le noyau ils ne sont pas recursifs
-- On peut pas utiliser les spinlock dans
-    - L'avantage des spinlock c'est que ca peut etre utiliser dans les handlers d'interruptions (meilleures perf avec peu de concurrence/peu de contention)
-    - ^ pour ca qu'on peut pas faire mutex/barriere/etc, on peut pas s'endormir dans un handler d'interruption
+- Comme les spinlocks utilisent le CPU à fond, on peut avoir des problèmes au niveau de la consommation énergétique
+#### L'avantage
+- Les spinlocks sont surtout utilisés dans les handlers d'interruptions (meilleures perf avec peu de concurrence/peu de contention)
+- On ne peut faire de mutex/barriere/etc dans un handler d'irq car pas moyen de s'endormir sur une ressource
 
-> API Spinlocks dans le noyau
-
+#### API
 ```c
 DEFINE_SPINLOCK(my_slock)
 unsigned long flags;
@@ -71,7 +71,13 @@ spin_unlock_irqsave(&my_spin, flags);
 
 fig1
 
-Dans le noyau y a plain de variables marques `PER_CPU`
+Le principe est de faire une copie d'une variable localement sur chaque CPU pour éviter des accès en partage.
+Un point de linéarisation/cohérence possible dans le noyau est la lecture de la valeur dans sysfs. À ce moment-là, la valeur normale est "ré-assemblée" depuis les variables \_per_cpu. Genre une somme par exemple.
+
+
+Dans le noyau y a plein de variables marques `PER_CPU` pour ces raisons de perf et de simplification d'accès mémoire/cache.
+
+#### API
 
 ```c
 /**
@@ -91,16 +97,20 @@ get_cpu_var(var)
 Le probleme possible:
 On fait `__get_cpu_var`, en tant que cpu1, on se fait preempte au millieu d'appel systeme et migre sur cpu2, ou on fait `__put_cpu_var` et on ecrit (on ecrit pas chez nous)
 
-### Operations Atomiques (materiel)
+### Operations Atomiques (on se repose sur les instructions matérielles)
 
 Type: `atomic_t`
 Operations: `atomic{_inc, _add, _dec_and_Test, tons more}`
 
 ### Mutex
+Equivalent à sémaphore initialisé à 1
+#### Avantage
+Classique. On connait!
 
-Equivalent a semaphore init a 1
+#### Inconvénient
+On dort donc y a plein d'endroits dans le noyau ou on peut pas l'utiliser
 
-API:
+#### API:
 
 ```c
 mutex_init(&my_mut);
@@ -108,20 +118,16 @@ mutex_lock(&my_mut);
 mutex_unlock(&my_mut);
 ```
 
-Probleme:
-On dort donc y a plein d'endroits dans le noyau ou on peut pas l'utiliser
 
-### Semaphore
+### Sémaphore
 
-Deux questions a se poser sur les semaphores:
-
+Deux questions à se poser sur les sémaphores:
 - Est-il interruptible?
 - Dijkstra ou generaliste?
 
-Mutex generalise avec un compteur, deux types
-
-- Semaphore de Dijkstra : Compteur est positive ou null
-- Semaphore generalise : Compteur peut etre negatif
+Un sémaphore revient à un mutex généralise avec un compteur, deux types
+- Semaphore de Dijkstra : Compteur est positif ou nul
+- Semaphore generalise : Compteur peut être negatif
 
 API:
 
@@ -134,7 +140,7 @@ sem_up(&my_sem);
 ```
 
 ### Completion Variables
-
+Variables indiquant la terminaison/completion d'un job. Sorte de barrière mémoire.
 [Ressources gnu.org](https://www.gnu.org/software/emacs/manual/html_node/elisp/Completion-Variables.html)
 
 > ++
@@ -165,7 +171,17 @@ up_write(&my_rw);
 
 ### Read-Copy-Update (RCU)
 
-Offert par materiel, y en a qu'un.
+Soit on lit une copie de la donnée, soit la donnée mise à jour. On n'a pas forcément besoin de la dernière valeur == on chope une valeur ayant été cohérente/valide à un moment donné dans le passé (proche)
+
+Quand on veut faire un read, en vrai on démarre un lecteur RCU
+rcu_read_unlock()
+
+Quand on écrit, on balance un synchronize_rcu()
+Ceci fait la barrière de cohérence
+
+Les RCU assurent qu'avant une écriture sur une variable "partagée", on est cohérent, et après aussi. Les lectures PENDANT l'écritures vont finir par se compléter, et on s'assure toujours que l'écriture finit APRÈS toute lecture déjà qui s'éxecute
+
+Impl. Chaque CPU a un état quiescent/pas quiescent
 
 The name comes from the way that RCU is used to update a linked structure in place. A thread wishing to do this uses the following steps:
 
