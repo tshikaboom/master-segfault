@@ -29,6 +29,7 @@ En ce moment, on a donc des débuts de
   - [3. Les locks](NMV/CS3-Locks.md)
   - [4. Queues et files concurrentes](NMV/CS4-ConcurrentQueuesAndStacks.md)
   - [TP Garbage Collector](NMV/TD1-GC.md)
+  - [5. Techniques de synchro en mono- et multicoeur](NMV/CS5-Resume.md)
 - SF
   - [1. Rappels LTL/CTL](SF/cours-1.md)
   - [2. Réseaux de Petri colorés](SF/cours2.md) ([HTML](SF/cours2.html))
