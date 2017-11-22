@@ -29,6 +29,12 @@ En ce moment, on a donc des débuts de
   - [3. Les locks](NMV/CS3-Locks.md)
   - [4. Queues et files concurrentes](NMV/CS4-ConcurrentQueuesAndStacks.md)
   - [TP Garbage Collector](NMV/TD1-GC.md)
+- SF
+  - [1. Rappels LTL/CTL](SF/cours-1.md)
+  - [2. Réseaux de Petri colorés](SF/cours2.md) ([HTML](SF/cours2.html))
+  - [3. Petri // Dîner des philosophes + les trains](SF/cours3.md)
+  - [6. Structures de Kripke, automates de Büchi](SF/cours6.md)
+  - [7. Encore un peu de Büchi](SF/cours7.md)
 - ARCHI3
   - [Cours 2](ARCHI3/archicours2.md)
 
