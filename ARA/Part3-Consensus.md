@@ -237,6 +237,14 @@ Note that "strong" and "weak" mean different things for accuracy vs completeness
 | Completude forte | P | S | ♦P | ♦S |
 | Completude faible | Q | W | ♦Q | ♦W | 
 
+
+>- P→ An innocent is never suspected
+>- <>P→ In the end every innocent will be not guilty
+>- S → At least one innocent is never suspected
+>- <>S → In the end at least one innocent is never suspected
+>- D'où <>S == Omega parce que 
+>   - Omega→ Gives you one innocent (who you choose as leader cause you know he is innocent and you can trust him)
+
 Completude `faible` et `forte` sont equivalentes (on peut construite une completude forte a partir d'une faible)
 
 Force des detecteurs: 
