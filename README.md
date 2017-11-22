@@ -12,17 +12,16 @@ En ce moment, on a donc des débuts de
 - ARA
   - [1. Broadcasts](ARA/Part1-Broadcasts.md)
   - [2. Mémoire partagée](ARA/Part2-SharedMemory.md)
-  - [3. Consensus](ARA/Part3-Consensus.md)
-  - [4. Checkpointing](ARA/Part4-Checkpointing.md)
+  - [3. Fault Detectors](ARA/Part3-Consensus.md) et [notes TD](ARA/TD-FD.md)
+  - [4. Checkpointing](ARA/Part4-Checkpointing.md) et [notes TD](ARA/TD-Checkpointing.md)
   - [TME PeerSim](ARA/PeerSim/tme1.md)
-  - [TD Fautes](ARA/TD-FD.md)
   - [Ébauche de l'exam/1/2009](ARA/Partiel.md)
 - BDLE
   - [1. SQL](BDLE/Cours1-SQL.md)
   - [2. Scala](BDLE/Cours2-Scala.md)
   - [TME 1 SQL](BDLE/tme1-sql.md)
   - [TME 2 Scala](BDLE/tme2-scala.md)
-  - [Quelques notes de partiels?](BDLE/partiel.md)
+  - [Questions type partiel](BDLE/partiel.md)
 - NMV
   - [1. Les principes de git](NMV/CS1-Git.md)
   - [2. Les principes du parallélisme](NMV/CS2-Parallelism.md)
