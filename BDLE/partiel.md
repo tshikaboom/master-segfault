@@ -58,6 +58,7 @@ GROUP BY ROLLUP (A, B, C);
 ```
 
 retourne 13 n-uplets:
+
 |A|B|C|N|
 |-|-|-|-|
 |x|y|1|2|
