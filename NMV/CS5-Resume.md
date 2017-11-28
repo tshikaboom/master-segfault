@@ -200,6 +200,8 @@ sem_up(&my_sem);
 
 ### Completion Variables
 ---
+Variables indiquant la terminaison/completion d'un job. Sorte de barrière mémoire.  
+[Ressources gnu.org](https://www.gnu.org/software/emacs/manual/html_node/elisp/Completion-Variables.html)
 
 #### Why they exist
 
@@ -252,8 +254,7 @@ sem_up(&my_sem);
 >
 > _[Linus Torvalds, LKML](http://lkml.iu.edu/hypermail/linux/kernel/0107.3/0674.html) `(http://lkml.iu.edu/hypermail/linux/kernel/0107.3/0674.html)`_
 
-Variables indiquant la terminaison/completion d'un job. Sorte de barrière mémoire.  
-[Ressources gnu.org](https://www.gnu.org/software/emacs/manual/html_node/elisp/Completion-Variables.html)
+
 
 #### Avantages
 
