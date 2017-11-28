@@ -60,12 +60,32 @@ car toute lecture diffuse des requêtes sur le bus (état S == Shared de MOESI)
 - On ne peut faire de mutex/barriere/etc dans un handler d'irq car pas moyen de s'endormir sur une ressource
 
 #### API
+
+>Note that these methods are implemented at least in part as macros, so the flags parameter (which must be defined as an `unsigned long`) is seemingly passed by value. This parameter contains architecture-specific data containing the state of the interrupt systems. Because at least one supported architecture incorporates stack information into the value (ahem, SPARC), flags cannot be passed to another function (specifically, it must remain on the same stack frame). For this reason, the call to save and the call to restore interrupts must occur in the same function.
+>
+> _Robert Love, Linux Kernel Development_
+
 ```c
 DEFINE_SPINLOCK(my_slock)
 unsigned long flags;
 spin_lock_irqsave(&my_spin, flags);
 spin_unlock_irqsave(&my_spin, flags);
 ```
+__Attention!__
+
+`spin_lock_irqsave` is basically used to save the interrupt state before taking the spin lock, this is because spin lock disables the interrupt, when the lock is taken in interrupt context, and re-enables it when while unlocking. The interrupt state is saved so that it should reinstate the interrupts again.
+
+Example:
+
+- Lets say interrupt `x` was disabled before spin lock was acquired
+- `spin_lock_irq` will disable the interrupt `x` and take the the lock
+- `spin_unlock_irq` will enable the interrupt `x`, leading to incoherent state
+
+So in the 3rd step above after releasing the lock we will have interrupt `x` enabled which was earlier disabled before the lock was acquired.
+
+So only when you are sure that interrupts are _not disabled_ only then you should `spin_lock_irq` otherwise you should _always_ use `spin_lock_irqsave`.
+
+
 
 ### Recopier les variables par coeur (je me ramene en monocoeur)
 
