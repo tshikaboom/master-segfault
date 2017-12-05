@@ -37,7 +37,28 @@ Upon reception of m:
 			R_deliver(m)
 
 ```
+> \>\>fig1 ARA/td4:consnesus here<<
 
 Dès qu'on reçoit un message, on retransmet.
+
+## Q3.
+> Exécutez l'algorithme sans faute en considérant 3 processus.
+
+
+> \>\>fig2 ARA/td4:consnesus here<<
+
+## Q4.
+> Exécutez l'algorithme en considérant 3 processus avec p2 qui tombe en panne.
+
+## Q5.
+> Quel est l'impact d'une fausse suspicion? Est-il possible que deux coordinateurs
+différents diffusent une décision? Illustrez votre réponse par un scénario.
+
+
+## Q6.
+> Qu'est-ce qu'un accord uniforme? Démontrez quel type d'accord assure cet algorithme.
+
+## Q7.
+> Quelle est l'utilité du message nack?
 
 

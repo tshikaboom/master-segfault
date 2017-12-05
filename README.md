@@ -14,6 +14,7 @@ En ce moment, on a donc des débuts de
   - [2. Mémoire partagée](ARA/Part2-SharedMemory.md)
   - [3. Fault Detectors](ARA/Part3-Consensus.md) et [notes TD](ARA/TD-FD.md)
   - [4. Checkpointing](ARA/Part4-Checkpointing.md) et [notes TD](ARA/TD-Checkpointing.md)
+  - [5. Notes TD Paxos/Consensus](ARA/TD-Paxos.md)
   - [TME PeerSim](ARA/PeerSim/tmes.md)
   - [Ébauche de l'exam/1/2009](ARA/Partiel.md)
 - BDLE
