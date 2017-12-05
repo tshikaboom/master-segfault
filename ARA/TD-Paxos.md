@@ -50,10 +50,15 @@ Dès qu'on reçoit un message, on retransmet.
 ## Q4.
 > Exécutez l'algorithme en considérant 3 processus avec p2 qui tombe en panne.
 
+Si un processus est considéré comme mort, on lui envoie un NACK.
+
 ## Q5.
 > Quel est l'impact d'une fausse suspicion? Est-il possible que deux coordinateurs
 différents diffusent une décision? Illustrez votre réponse par un scénario.
 
+**Cas 1** Coordinateur suspecté par une majorité.
+
+**Cas 2** Une minorité qui suspecte.
 
 ## Q6.
 > Qu'est-ce qu'un accord uniforme? Démontrez quel type d'accord assure cet algorithme.
