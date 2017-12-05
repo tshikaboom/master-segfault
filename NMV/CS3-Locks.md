@@ -252,3 +252,4 @@ Probleme: Concurrent `cas` and `remove`
 - [[pdf] Threads locks usage](http://pages.cs.wisc.edu/~remzi/OSTEP/threads-locks-usage.pdf)
 - [[pdf] Techniques for highly concurrent objects, part1](http://courses.csail.mit.edu/6.852/08/lectures/Lecture21.pdf)
 - [[pdf] Techniques for highly concurrent objects, part2](http://courses.csail.mit.edu/6.852/08/lectures/Lecture22.pdf)
+- [[writeup] ffwd: delegation is (much) faster than you think](https://blog.acolyer.org/2017/12/04/ffwd-delegation-is-much-faster-than-you-think/)
