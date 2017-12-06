@@ -162,3 +162,53 @@ void map_page(struct task *ctx, vaddr_t vaddr, paddr_t paddr) {
 > - Le `bss` qui doit commencer en espace virtuel immédiatement après le payload et s’arrêter à l’adresse virtuelle `ctx->bss_end_vaddr`.
 >
 > On rappelle que le `bss` est une zone qui doit être initialisée à zero au lancement d’un tâche. Il est possible que certaines tâches aient un `bss` vide.
+
+## Question 3
+
+> Donnez les adresses virtuelles de début et de fin du payload et du `bss` d’une tâche, calculées en fonction du modèle mémoire et des champs d’une tâche `ctx`.
+
+
+## Question 4
+
+> Implémentez la fonction void load task(struct task *ctx) qui initialise une nouvelle tâche en mémoire sans toutefois charger sa table des pages dans le CR3.
+
+
+## Question 5
+
+> Implémentez la fonction void set task(struct task *ctx) qui charge une nouvelle tâche en mémoire en modifiant le CR3.
+
+# Exercice 4
+
+> Dans cet exercice on implémente les fonctions d’allocation.
+
+## Question 1
+> Implémentez la fonction void mmap(struct task *ctx, vaddr t vaddr) qui alloue une page physique, l’initialise à zero et la mappe à l’adresse virtuelle donnée pour la tâche donnée.
+
+
+## Question 2
+
+>Á cette étape du TP, l’exécution de Rackdoll doit afficher sur le moniteur qu’une faute de page se produit à l’adresse virtuelle 0x1ffffffff8. Étant donné le modèle mémoire, indiquez ce qui provoque la faute de page. D’après vous, cette faute est-elle causée par un accès mémoire légitime ?
+
+
+## Question 3
+
+>D’après le modèle mémoire de Rackdoll, la pile d’une tâche utilisateur a une taille de 127 GiB, c’est à dire bien plus que la mémoire physique disponible dans la machine virtuelle. La pile est donc allouée de manière paresseuse. Expliquez en quoi consiste l’allocation paresseuse.
+
+
+## Question 4
+> Implémentez la fonction `void pgfault(struct interrupt context *ctx)` qui traite une faute de page dont le contexte est stocké dans ctx et où l’adresse qui a causé la faute est stockée dans le registre CR2 accessible via la fonction `uint64_t store cr2(void)`. Rappellez-vous que les seules fautes de page légitimes sont celles de la pile. Toute faute à une adresse en dehors de la pile doit causer une faute de segmentation de la tâche courante (vous pouvez utiliser la fonction `void exit task(struct interrupt context *ctx)` qui termine la tâche courante).
+
+# Exercice 5
+
+> Dans cet exercice on implémente la fonction de libération. Á cette étape du TP, les tâches doivent s’exécuter brièvement avant d’échouer. Des messages d’avertissement indiquant une pénurie mémoire doivent aussi s’afficher sur le moniteur. Cette pénurie est causée par la tâche “Sieve” qui fait de nombreux appels système mmap et munmap. Puisque munmap n’est pas encore implémenté, aucune page n’est libérée : c’est une fuite mémoire.
+
+## Question 1
+> Implémentez la fonction void munmap(struct task *ctx, vaddr t vaddr) qui permet de supprimer le mapping d’une adresse virtuelle donnée pour une tâche donnée. Cette fonction doit aussi libérer les pages mémoire qui ne sont plus utilisées à l’aide de la fonction `void free page(paddr t addr)`. Une fois la fonction munmap implémentée, la tâche Sieve ne devrait plus causer de pénurie mémoire et toutes les tâches devraient pouvoir s’exécuter complètement.
+
+
+## Question 2
+> Il est possible que malgré une exécution complète, la tâche “Adversary” indique un echec. En lisant le code de cette tâche dans `task/adversary.c` et en relisant le code de votre fonction munmap, indiquez ce qui peut provoquer cet echec.
+
+
+## Question 3
+> Corrigez le problème soulevé dans la Question 2 à l’aide d’une fonction définie dans le fichier `include/x86.h`.
