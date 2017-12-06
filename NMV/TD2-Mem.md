@@ -30,6 +30,24 @@ ___
 > Programmez et testez la fonction `print_pgt`. Vous testerez votre nouvelle fonction en l’appellant depuis la fonction `main_multiboot2` située dans le fichier `kernel/main.c` juste avant le chargement des tâches utilisateur. Pour cela vous pouvez utiliser la fonction `uint64_t store_cr3(void)` qui retourne le contenu du registre `CR3`.
 
 Si votre fonction d’affichage fonctionne correctement, vous devriez observer une table des pages avec la structure indiquée dans l’annexe de ce sujet.
+
+```c
+void print_pgt (paddr_t pml, uint8_t lvl)
+{
+  uint64_t * tmp;
+  for(int i=0; i<SIZE; i++) {
+    tmp = (uint64_t *) pml;
+    if ((*tmp) & 1) // Valid page
+    printk("[%d], %x: %x \n", lvl, tmp, *tmp&~MASK);
+    if ((!((*tmp)&64)) && ((*tmp)&1)) // Valid and huge
+    if (lvl > 1)
+    print_pgt((*tmp)&~MASK, --lvl);
+    pml += sizeof(paddr_t);
+  }
+  printk("Bye");
+}
+```
+
 ___
 
 CR3 is:
@@ -37,3 +55,110 @@ CR3 is:
 >
 > _[Wiki](https://en.wikipedia.org/wiki/Control_register#CR3) `(https://en.wikipedia.org/wiki/Control_register#CR3)`_
 
+# Ex2
+
+> Dans cet exercice on implémente la fonction qui permet de mapper une adresse virtuelle sur une adresse physique. Par soucis de simplicité, on fera les suppositions suivantes : 
+>
+> - Les niveaux intermédiaires de la table des pages sont tous mappés par une identité (l’adresse virtuelle est égale à l’adresse physique).
+> - Tous les nouveaux mappings seront faits avec les droits utilisateurs (bit 2) et en écriture (bit 1).
+> - On ne cherche pas à gérer les huge pages.
+> - Si un mapping est demandé pour une adresse virtuelle `α`, l’adresse virtuelle `α` n’est pas déjà mappée.
+> Vous avez à votre disposition la fonction `paddr_t alloc_page()` qui alloue une nouvelle page déjà mappée par une identité. Le contenu de cette page est indéfini.
+
+## Question 1
+
+> Étant donné une adresse virtuelle `vaddr` à mapper et la hauteur courante dans la table des pages `lvl` (avec lvl = 4 pour le niveau indiqué dans le CR3), donnez la formule qui indique l’index de l’entrée correspondante dans le niveau courant.
+
+`index = ((vaddr>>12)>>(i*9))&OFFSMASK;`
+
+or 
+
+`idx = (vaddr >> (PAGE_SHIFT + PGD_SHIFT * lvl)) & PGD_MASK;`
+
+## Question 2
+
+> Implémentez la fonction `void map_page(struct task *ctx, vaddr t vaddr, paddr t paddr)` dans le fichier `kernel/memory.c` qui mappe l’adresse virtuelle `vaddr` sur l’adresse physique `paddr` sur un espace d’une page pour la tâche `ctx`. L’adresse physique du premier niveau de la table des pages est indiquée par `ctx->pgt`.
+>
+>Pour cet exercice, n’hésitez pas à tester très régulièrement votre fonction à chaque étape de son implémentation. On pourra pour cela utiliser le morceau de code suivant depuis `kernel/main.c` :
+
+```c
+struct task fake;
+paddr_t new;
+fake.pgt = store_cr3();
+new = alloc_page();
+map_page(&fake, 0x201000, new);
+```
+
+> Si votre fonction `map_page` fonctionne, vous devriez pouvoir inspecter la mémoire à l’adresse `0x201000` à l’aide du moniteur de Qemu avec la commande `xp/8g 0x201000`.
+- `xp/8g addr` : affiche l'addresse *physique*
+- `x/8g addr`  : affiche l'addresse *virtuelle*
+
+```c
+// Us
+void map_page(struct task *ctx, vaddr_t vaddr, paddr_t paddr) {
+  uint64_t index;
+  paddr_t *pml = (paddr_t *) ctx->pgt;
+  for (int i = 3; i > 0; i--) {
+    index = ((vaddr>>12)>>(i*9))&OFFSMASK;
+    if(!((pml[index])&1)) // If not present (needs to be allocated)
+      pml[index] = alloc_page();
+    pml[index] = pml[index]|7;
+    pml = (paddr_t *)(pml[index]&~ADDRMASK);
+  }
+  index = (vaddr>>12)&OFFSMASK;
+  pml[index]= paddr|7;
+}
+```
+
+```c
+// Prof
+#define PAGE_SHIFT  12
+#define PAGE_SIZE   (1ul<<PAGE_SHIFT)
+#define PAGE_MASK   4095
+#define PTE_P       1ul
+#define PTE_U       4ul
+#define PTE_W       2ul
+#define PTE_ADDR    0xffffffffffff000
+#define PGD_SHIFT   9
+
+void map_page(struct task *ctx, vaddr_t vaddr, paddr_t paddr) {
+  paddr_t pgt = ctx->pgt, new;
+  pte_t * pgd = (pte_t*) pgt;
+  uint8_t lvl = 3;
+  vaddr_t idx;
+
+  while (lvl > 0) {
+    idx = (vaddr >> (PAGE_SHIFT + PGD_SHIFT * lvl)) & PGD_MASK;
+    if (!(pgd[idx] & PTE_P)) {
+      new = alloc_page();
+      pgd[idx] = (new & PTE_ADDR) | PTE_U | PTE_W | PTE_P;
+    } else {
+      pgt = pgd[idx] & PTE_ADDR;
+    }
+    pgd = (pte_t *) pgt;
+    lvl--;
+  }
+  idx = (vaddr >> PAGE_SHIFT) & PGD_MASK;
+  pgd[idx] = (paddr & PTE_ADDR) | PTE_U | PTE_W | PTE_P;
+}
+```
+
+# Ex3
+
+> Dans cet exercice on implémente les fonctions nécessaires au chargement d’une tâche en mémoire. Le fichier `kernel/memory.c` contient, en commentaire, la description du modèle mémoire de Rackdoll. Le modèle mémoire d’un système définit à quelles adresses physiques et virtuelles sont placées chacun des composants.
+
+## Question 1
+
+> Á cette étape du TP, l’exécution de `Rackdoll` doit afficher sur le moniteur qu’une faute de page se produit à l’adresse virtuelle `0x2000000030`. Étant donné le modèle mémoire, indiquez ce qui provoque la faute de page.
+
+
+
+## Question 2
+
+> La première étape de la création d’une nouvelle tâche en mémoire est de dériver la table des pages courante en une nouvelle table des pages. Expliquez quelles plages d’adresses de la table courante doivent être conservées dans la nouvelle table et pourquoi.
+>
+> Une tâche utilisateur `ctx` est constituée de deux parties :
+> - Le payload situé dans la mémoire physique entre `ctx->load_paddr` et `ctx->load_end_paddr` qui contient le code et les données.
+> - Le `bss` qui doit commencer en espace virtuel immédiatement après le payload et s’arrêter à l’adresse virtuelle `ctx->bss_end_vaddr`.
+>
+> On rappelle que le `bss` est une zone qui doit être initialisée à zero au lancement d’un tâche. Il est possible que certaines tâches aient un `bss` vide.
