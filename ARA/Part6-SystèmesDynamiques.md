@@ -79,4 +79,21 @@ Par contre, une empreinte pas connexe signifie qu'à tout instant, le graphe dyn
 
 **Trajet** = suite d'arêtes formant un chemin dans l'empreinte dont les dates de présence sont croissantes. (on va se limiter à ça, la def formelle est dégueue apparemment).
 
-**Remarque2**.  Un trajet **n'est pas symétrique**, à l'inverse d'un chemin.
+**Remarque2**.
+- Un trajet **n'est pas symétrique**, à l'inverse d'un chemin.
+- Un trajet est défini par rapport à **une date de départ**. 
+
+### 3.3. Connexité
+Notion intuitive: tout le monde est joignale **tout le temps**.
+Un graphe dynamique est connexe si pour toute paire de sommets, à tout instant *t*, il existe un trajet en ces noeuds après *t*.
+
+**Remarque**. Cette définition est une généralisation de la définition de connexité dans les graphes statiques.
+
+### 3.4. Distance
+
+**Définition**. Nombre de sauts minimal de tous les trajets entre deux sommets *(shortest)*.  
+**Attention** à l'importance de la durée du trajet, ce n'est pas la même chose.
+
+**Trajet le plus rapide**: trajet minimisant la quantité de temps entre le départ et l'arrivée sur l'ensemble des trajets existants entre deux noeuds **après *t***. La notion de trajet le plus rapide est elle-même en fonction du temps. *(fastest)*
+
+**Trajet arrivant le plus tôt**: minimisation de la date d'arrivée après *t*, **pas forcément** de la durée du trajet. *(foremost)*
