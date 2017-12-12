@@ -66,12 +66,35 @@ Voisinage
 
 ## Graphe sous-jacent / Empreinte
 
-Graphe statique regroupant l'ensemble des noeuds **et** des aretes du graphe dynamique qui apparaissent au moins 1 fois.
+> Graphe statique regroupant l'ensemble des noeuds **et** des aretes du graphe dynamique qui apparaissent au moins 1 fois.
 
-> La superposition de tout les graphs a tout les instants, ecrase.
+La superposition de tout les graphs a tout les instants, ecrase.
 
 Empreinte connexe =/=> graphe dynamique connexe a tout instant
 
 ## Trajet
 
-> fig3
+> fig3 td5
+
+> Trajet : Suite d'aretes formant un chemin dans l'empreinte dont les dates de presence sont croissantes
+
+Remarques:
+
+- Trajet non symmetrique
+- Trajet depend date depart
+
+> fig4 td5
+
+## Connexite
+
+Notion intuitive: Tout le monde joignable tout le temps
+
+Graphe dynamique `connexe` : Pour toute paire de sommets, pour tout sommet `t` il existe un trajet entre ces noeuds apres `t`
+
+## Distance
+
+Distance defini par deux trucs:
+
+- `Shortest` Nb de sauts minimal de tous les trajets entre 2 sommets. **Attention, pas forcemment le plus rapide!**
+- `Fastest` Trajet minimisant `arrive-depart`, sur l'ensemble des trajets apres `t`
+- `Foremost` Trajet arrivant le plus tot possible minimise la date d'arrivee apres `t`
