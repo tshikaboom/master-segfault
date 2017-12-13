@@ -32,15 +32,21 @@ Le hit diminue plus la taille de `param` tend vers taille d'une ligne de cache.
 ## Question 4
 > D’après votre réponse à la Question 3, quel est le type d’accès déterminant pour le temps d’exécution quand le paramètre `PARAM` est très inférieur, légèrement inférieur ou supérieur à la taille d’une ligne de cache ? Comment devrait varier le temps d’exécuion mesuré à chacune de ces trois étapes ?
 
-
+Quand c'est tres inferieur, c'est les `hit`, tres superieur majoritairement `miss`.
 
 ## Question 5
 > Le fichier `cacheline.c` contient un code similaire à celui fournit dans cet exercice. La fonction `uint64 t detect(char *mem)` diffère néamoins sur deux aspects : la boucle principale est exécutée plusieurs fois plutôt qu’une seule et est précédée par un boucle de warmup. Expliquez l’intérêt de ces deux modifications.
+
+Boucle de warm-up evince tout ce qui est inutile et prepare le cache.  
+Plusieurs executions, pour avoir les bonnes moyennes.
 
 ## Question 6
 > Exécutez la commande make cacheline. Elle a pour effet de compiler le fichier `cacheline.c` avec plusieurs valeurs pour le paramètre PARAM, d’exécuter chacune des versions et de représenter les temps d’exécution sous forme graphique. Ce graphique indique en abscisee la valeur de PARAM et en ordonnée le temps d’exécution moyen de la boucle principale en nanoseconde. Déduisez de ce graphique la taille d’une ligne de cache sur votre machine.
 
 ![plot1](./images/cacheline.png)
+
+For this example the cache line size is 64, this is where hits start occuring massively and the execution time drops significantly.
+
 
 # Exercice 2
 > Dans cet exercice, on cherche à mesurer la taille des caches L1 et L2. Il existe généralement un troisième niveau de cache, mais sur les architectures actuelles, ce niveau est partagé entre les différents cœurs, ce qui rend les mesures plus difficiles sans avoir le contrôle complet de la machine. On rappelle qu’en théorie, un cache hit L1 coûte moins cher qu’un cache hit L2, qui lui-même coûte moins cher qu’un cache miss L2.
