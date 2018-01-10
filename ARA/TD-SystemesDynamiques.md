@@ -98,3 +98,13 @@ Distance defini par deux trucs:
 - `Shortest` Nb de sauts minimal de tous les trajets entre 2 sommets. **Attention, pas forcemment le plus rapide!**
 - `Fastest` Trajet minimisant `arrive-depart`, sur l'ensemble des trajets apres `t`
 - `Foremost` Trajet arrivant le plus tot possible minimise la date d'arrivee apres `t`
+
+
+# Exo1
+
+cf th3
+--
+
+Par l'absurde, supposons exister un algo A satisfaisant TDB (foremost) sur R, sans connaissance de `n`.
+
+Prenons un TVG `G` appartenant a `R` a `n` summets -> si on demande 1 broadcast a `t=0`, `A` est capable de le diffuser en 1 temps fini `tp`.

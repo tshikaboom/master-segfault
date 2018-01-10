@@ -97,3 +97,23 @@ Un graphe dynamique est connexe si pour toute paire de sommets, à tout instant 
 **Trajet le plus rapide**: trajet minimisant la quantité de temps entre le départ et l'arrivée sur l'ensemble des trajets existants entre deux noeuds **après *t***. La notion de trajet le plus rapide est elle-même en fonction du temps. *(fastest)*
 
 **Trajet arrivant le plus tôt**: minimisation de la date d'arrivée après *t*, **pas forcément** de la durée du trajet. *(foremost)*
+
+## Classes de TVG (Time Varying Graphs)
+
+En algo classique, on considere toujours des graphes connexes (car sinon, rien est possible).
+Sur un graphe dynamique, la definition de connexite n'est pas unique, et varie selon les auteurs. En revanche, la def choisie impacte beaucoup les resultats obtenus.
+
+Ex de definitions:
+
+- Pour tout `noeud`, il existe un trajet vers tout autre `noeud`
+- Pour tout `noeud`, il existe un trajet vers tout autre `noeud` infiniment souvent
+- Empreinte connexte
+- Pour tout `noeud`, pour tout `t`, il existe un chemin vers tout autre noeud (ie `Ct` connexe)
+- etc...
+
+Il existe des relations d'inclusions et d'intersection entre ces classes qui permettent de comparer les resultats obtenus sur chacun de ces classes.
+
+Extrait de la hierarchie:
+
+**fig5**
+--
