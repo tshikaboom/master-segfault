@@ -16,7 +16,7 @@ Graphes dynamiques
 | Reseaux opportunistes |  |
 | Reseaux capteurs |  |
 
-Les deux premiere colonnes representes des reseaux ou la mobilite est subie. 
+Les deux premiere colonnes representes des reseaux ou la mobilite est subie.
 Troisieme colonne c'est des reseaux ou la mobilite est controlee avec l'algo.
 
 Dans le cadre de ce cours on s'interesse aux deux premieres colonnes.
@@ -99,12 +99,58 @@ Distance defini par deux trucs:
 - `Fastest` Trajet minimisant `arrive-depart`, sur l'ensemble des trajets apres `t`
 - `Foremost` Trajet arrivant le plus tot possible minimise la date d'arrivee apres `t`
 
+## Exercice 1. Foremost broadcast
+### 1) cf Théorème 3.
+Pour prouver une impossibilité, on passe par le raisonnement par l'absurde/contradiction.
 
-# Exo1
+Par l'absurde, supposons exister un algorithme satisfaisant TDB[foremost] sur R sans connaissance de n
+Soit un TVG G ∈ ℛ à *n* sommets => si on demande un broadcast à t=0, A est capable
+de le diffuser en un temps fini t*f*. On construit un graphe G' où une arête apparaît
+après l'instant t*f*, sinon il est identique à G en [0, t*f*].
 
-cf th3
---
+=> A broadcast un message envoyé à t=0 sur G' avant t*f*. Or, le message n'a pas
+pu atteindre la nouvelle arête *a*. L'algorithme, à t*f*, considère qu'il a fini
+la diffusion à t*f* pourtant.
+=> contradiction avec la spécification.
 
-Par l'absurde, supposons exister un algo A satisfaisant TDB (foremost) sur R, sans connaissance de `n`.
+### Question 2)
+cf algorithme 1.
+Principe de l'algorithme.
 
-Prenons un TVG `G` appartenant a `R` a `n` summets -> si on demande 1 broadcast a `t=0`, `A` est capable de le diffuser en 1 temps fini `tp`.
+1. Chaque processus informé informe chacun de ses voisins dès que possible (apparition/présence arêtes)
+2. Remontée des ACK à la racine à l'aide de la primitive `send_retry`
+3. La racine compte les ACK et détecte la terminaison grâce à la valeur de *n*
+
+## Exercice 2. Shortest broadcast
+
+### 1)
+Il est impossible de résoudre le shortest broadcast dans la classe B en
+connaissant *n*.
+
+cf Théorème 16
+
+On construit un graphe G tranquille, avec deux arêtes u et v ayant comme chemin le plus court l'obligation de passer par une troisième arete, entre [0 et t*f*]. En supposant que celle-ci disparaît après t*f* et qu'un chemin plus court est créé entre *u* et *v*, on a contradiction comme le shortest ne marche plus du coup.
+
+algorithme 3. Idée.
+
+Construire un BFST (breadth-first-spanning-tree, arbre en largeur) de
+l'empreinte du TVG, par "couche" autour de l'initiateur. Chaque couche de
+profondeur *i* est construite dans la ronde (t*0* + iΔ; t*0* + (i+1)Δ) + gestion
+des ACK pour détection de terminaison
+
+## Exercice 3. Fastest broadcast
+"je suis pas pressé, prêt à attendre, mais une fois qu'on diffuse y'a pas l'time"
+
+### le 1 on saute genre
+
+### Qustion 2
+"il existe un algo capable de calculer la distance temporelle entre deux sommets
+au bout d'une période"
+
+1. On laisse l'algo de distance apprendre toutes les distances à l'initiateur pendant 2*p*.
+2. On peut calculer l'excentricité temporelle (max distance entre deux noeuds) sur une période
+3. On déclence un broadcast en foremost à l'instant où l'excentricité est minimale
+
+
+## Moralité de l'histoire
+Confirmation de l'intuition: plus la classe est petite/plus les contraintes sont fortes, plus on arrive à résoudre des problèmes difficiles. Puis à priori c'est le mieux que l'on pourrait faire
