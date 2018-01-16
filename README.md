@@ -16,6 +16,7 @@ En ce moment, on a donc des débuts de
   - [4. Checkpointing](ARA/Part4-Checkpointing.md) et [notes TD](ARA/TD-Checkpointing.md)
   - [5. Notes TD Paxos/Consensus](ARA/TD-Paxos.md)
   - [6. Systèmes dynamiques](ARA/Part6-SystèmesDynamiques.md) et [notes TD](ARA/TD-SystemesDynamiques.md)
+  - [7. Auto-stabilidation [partie TD]](ARA/TD-AutoStabilisation.md)
   - [TME PeerSim](ARA/PeerSim/tmes.md)
   - [Ébauche de l'exam/1/2009](ARA/Partiel.md)
 - BDLE
