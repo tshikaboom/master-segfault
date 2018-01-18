@@ -42,5 +42,7 @@ En ce moment, on a donc des débuts de
   - [Cours 2](ARCHI3/archicours2.md)
 - CODEL
   - [Blockchain](CODEL/Blockchain.md)
+- ASTRE
+  - [Notes à l'arrache sur l'étude de cas](ASTRE/Etude-de-cas.md)
 
 Si quelqu'un se sent chaud rajouter ses notes d'une de ces ou d'une autre manière, suffit de le faire :-)
