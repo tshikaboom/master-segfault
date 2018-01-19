@@ -27,7 +27,7 @@ val userFile = "path_to_dir/facebook_users_prop.csv"
 val edgeFile = "path_to_dir/facebook_edges_prop.csv"
 
 val users = sc.textFile(userFile).map(_.split(",")).
-    map(x => x(0).toLong, (x(1)), (x(3).toInt))
+    map(x => x(0).toLong, (x(1), x(2), x(3).toInt))
 val edges = sc.textFile(edgeFile).map(_.split(",")).
     map(x => Edge(x(0).toLong, x(1).toLong, (x(2), x(3).toInt)))
 
@@ -96,6 +96,40 @@ max_friends.maxBy(_._2)
 > `Nombre de résultats : 76`
 
 ```scala
+// Utilisant triplets
+ val neighbours = graph.triplets.
+    filter { t => (t.srcAttr._1 == "Kendall" || t.dstAttr._1 == "Kendall") }.
+    map{ t=> if (t.srcAttr._1 == "Kendall") {t.dstAttr} else {t.srcAttr}}.
+    foreach(println)
+
+// collectNeighbors (innerJoin)
+val kenid = graph.vertices.filter { case (id, (name, last, age)) => name == "Kendall" }.map {case(id, (name, last, age)) => id }.collect()(0)
+
+val neighbours = graph.
+    collectNeighbors(EdgeDirection.Either).
+    filter{case (id, v) => id==kenid}.
+    map{ case(vid, array) => array }.
+    map{ case(vid, node) => node}.
+    foreach(println)
+
+val neighboursFlatMap = graph.
+    collectNeighbors(EdgeDirection.Either).
+    filter{ case (id, v) => id == kendall_id }.
+    flatMap { case (vid, array) => array }.
+    map { case (id, node) => node }
+    foreach(println)
+
+
+val kenGra = graph.vertices.filter { case(_, (name, _,_)) => name == "Kendall" }
+val neiJoin = graph.collectNeighbours(EdgeDirection.Either)
+kenGra.innerJoin(neighbors) ((id, v1, v2) => v2).
+
+graph.joinVertices(neighboursJoin)((id, old, _) => old).
+    vertices.
+    count
+
+// aggregateMessage
+
 
 ```
 
